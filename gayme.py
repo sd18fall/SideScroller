@@ -26,15 +26,17 @@ class Character:
     Attributes: x, y, size, sprite
     Methods: jump, shoot, appear
     '''
-    def __init__(self, x, y, sprite, size=5):
+    def __init__(self, x, y, sprite=None, size=25):
         self.x = x
         self.y = y
         self.size = size
         self.sprite = sprite
+        self.rect = pygame.Rect(self.x, self.y, self.size, self.size)
 
     def appear(self, screen):
         #draw the sprite at x, y
-        pygame.draw.rect(screen, (100,100,100), 100)
+        self.rect = pygame.Rect(self.x, self.y, self.size, self.size)
+        pygame.draw.rect(screen, (0,255,0), self.rect)
 
     def up(self):
         self.y -=1
@@ -59,7 +61,15 @@ class Player(Character):
 
 class Block:
     def __init__(self, x, y, width, height):
+        self.x = x
+        self.y = y
+        self.w = width
         self.h = height
+        self.rect = pygame.Rect(self.x, self.y, self.w, self.h)
+    def appear(self, screen):
+        #draw the sprite at x, y
+        self.rect = pygame.Rect(self.x, self.y, self.w, self.h)
+        pygame.draw.rect(screen, (255,0,0), self.rect)
 
     def collision(self):
         pass
@@ -89,6 +99,7 @@ def update():
 
     #if char hitting Enemy
     #   die
+    pygame.display.update()
     pass
 
 def calibrate():
@@ -122,17 +133,24 @@ alive = True
 screenx = 800
 screeny = 500
 
-jon = Character(screenx/2, screeny/3, 'spriteGoesHere')
+jon = Character(screenx/2, screeny*2/3)
 wallE = Block(450,200,5,50)
 floorE = Block(200,150,75,10)
 pygame.display.set_mode((screenx, screeny))
 
+
 while alive:
 
-    # pygame.display.set_mode((screenx, screeny))
+    GameWindow = pygame.display.set_mode((screenx, screeny))
+    jon.appear(GameWindow)
+    wallE.appear(GameWindow)
+    floorE.appear(GameWindow)
+
     update()
     if input("What do? ") == 'Die':
         die()
+    jon.x += 10
+    jon.y -= 10
 
 
 # ==============================================================================
