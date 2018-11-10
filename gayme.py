@@ -9,31 +9,45 @@ from pygame.locals import *
 #used to connect to arduino
 import serial #must install pySerial using 'pip install pyserial'
 import random
+import math
 
-
+screenx = 800
+screeny = 500
 # ==============================================================================
 #                                  Classes
 # ==============================================================================
 
 class Model:
-    def __init__(self, size, px=400, py=400):
+    def __init__(self, size, px=screenx*1/2, py=screeny*3/4):
         self.size = size
         self.player = Player(px, py)
-        self.block = []
+        self.blocks = []
+        self.enemies = []
 
     def add_block(self,num_block, screen):
         for i in range(num_block):
-            self.block.append(Block(random.randint(0,800),random.randint(0,400)))
-        for i in self.block:
+            self.blocks.append(Block(random.randint(0,800),random.randint(0,400)))
+        for i in self.blocks:
             i.appear(screen)
+
+    def add_enemy(self,num_enemy, screen):
+        for i in range(num_enemy):
+            self.enemies.append(Enemy(random.randint(0,800),random.randint(0,400)))
+        for i in self.enemies:
+            i.appear(screen)
+
     def update(self):
-        self.player.update(self.block)
+        self.player.update(self.blocks)
+
+    def floorTest(self):
+        self.blocks.append(Block(0, screeny*4/5, width=600, height=15, color=(255,255,0)))
+        self.blocks.append(Block(random.randint(400,600),random.randint(350,425)))
 
 class Character:
     '''
     Defines the basic features of a character in the game
-    Attributes: x, y, size, sprite
-    Methods: jump, shoot, appear
+    Attributes: x, y, v (y-velocity), size, sprite
+    Methods: jump, update, appear, collision
     '''
     def __init__(self, x, y, v=0, size=25, sprite=None):
         self.x = x
@@ -42,6 +56,7 @@ class Character:
         self.size = size
         self.sprite = sprite
         self.jumpStart = None
+        self.midJump = False
 
     def update(self, blockSet):
         self.collision(blockSet)
@@ -58,37 +73,49 @@ class Character:
     def jump(self, tock):
         if self.jumpStart is None:
             self.jumpStart = tock
+            self.midJump = True
 
         if tock - self.jumpStart > jumpDuration-2:
             self.jumpStart = None
+            self.midJump = False
         elif tock - self.jumpStart <= (jumpDuration-2)/2:
             self.v = -increment
         elif tock - self.jumpStart > (jumpDuration-2)/2:
             self.v = increment
 
     def collision(self, blockSet):
+        floorFlag = False
+        char = self.rect()
+        blockRects = []
         for block in blockSet:
-            # if the right edge is touching somehting, move left
-            if self.x + self.size >= block.x - block.w and self.x + self.size <= block.x + block.w:
-                 # if the edge of the character is between the right and left sides of the block
-                self.x -= increment
+            blockRects.append(block.rect())
+        # blockList = [block.rect() for block in blockSet]
 
-            # if the left edge is touching something, move right
-            elif self.x - self.size >= block.x - block.w and self.x - self.size <= block.x + block.w:
-                 # if the edge of the character is between the right and left sides of the block
-                self.x += increment
+        indicies = char.collidelistall(blockRects)
+        print(indicies)
 
-            # if the bottom edge is touching something, no vertical velocity
-            if self.y - self.size >= block.y - block.h and self.y - self.size <= block.y + block.h:
-                 # if the edge of the character is between the right and left sides of the block
-                self.y = 0
+        for i in indicies:
+            thisBlock = blockSet[i]
 
-            # if the top edge is touching somehting, move down
-            elif self.y + self.size >= block.y - block.h and self.y + self.size <= block.y + block.h:
-                 # if the edge of the character is between the right and left sides of the block
-                self.y -= increment
+            # if self.y + self.size <= thisBlock.y + thisBlock.h and self.y - self.size >= thisBlock.y - thisBlock.h:
+            if math.isclose((self.y+self.size), (thisBlock.y+(thisBlock.h)/2), abs_tol=(thisBlock.h)/2):
+                self.y = thisBlock.y - self.size
+                self.v = 0
+                floorFlag = True
+            # elif self.y <= thisBlock.y + thisBlock.h and self.y + self.size >= thisBlock.y + thisBlock.h:
+            elif math.isclose(self.y, (thisBlock.y+(thisBlock.h)/2), abs_tol=(thisBlock.h)/2):
+                self.y += 3*increment
 
-            else
+            if not floorFlag and self.x + self.size >= thisBlock.x - thisBlock.w and self.x + self.size <= thisBlock.x + thisBlock.w:
+                self.x -= 3*increment
+                print('hit right')
+            elif not floorFlag and self.x >= thisBlock.x - thisBlock.w and self.x <= thisBlock.x + thisBlock.w:
+                self.x += 3*increment
+                print('hit left')
+
+        # fall if you're not mid-jump or on the floor
+        if not self.midJump and not floorFlag:
+            self.v = increment
 
 
 class Enemy(Character):
@@ -101,31 +128,28 @@ class Enemy(Character):
 
 class Player(Character):
     def enemyEncounter(self, enemySet):
+        char = self.rect()
         for enemy in enemySet:
-            if self.x + self.size >= enemy.x - enemy.size and self.x + self.size <= enemy.x + enemy.size
-                or self.x - self.size >= enemy.x - enemy.size and self.x - self.size <= enemy.x + enemy.size:
-
+            if char.colliderect(enemy.rect()):
+                die()
 
 
 class Block:
-    def __init__(self, x, y, width=20, height=50):
+    def __init__(self, x, y, width=20, height=50, color=(255,0,0)):
         self.x = x
         self.y = y
         self.w = width
         self.h = height
+        self.color = color
 
     def rect(self):
         return pygame.Rect(self.x, self.y, self.w, self.h)
 
     def appear(self, screen):
-        #draw the sprite at x, y
-        pygame.draw.rect(screen, (255,0,0), self.rect())
+        pygame.draw.rect(screen, self.color, self.rect())
 
-    def collision(self):
-        pass
 
 class View():
-    """ A view of brick breaker rendered in a Pygame window """
     def __init__(self, model, size):
         """ Initialize the view with a reference to the model and the
             specified game screen dimensions (represented as a tuple
@@ -137,7 +161,7 @@ class View():
         """ Draw the current game state to the screen """
         for i in range(800):
             pygame.draw.line(self.screen,(i/8+40,i/20+20,i/7+70),(i,0),(i,700))
-        for block in self.model.block:
+        for block in self.model.blocks:
             pygame.draw.rect(self.screen,pygame.Color(255, 0, 0),pygame.Rect(block.x,block.y,block.w,block.h))
         pygame.draw.rect(self.screen,pygame.Color(0, 255, 0),pygame.Rect(self.model.player.x,self.model.player.y,self.model.player.size,self.model.player.size))
         pygame.display.update()
@@ -178,18 +202,10 @@ increment = 5
 #appropriately moves things
 
 def update(tock):
-    # if not collision(below) or char.up:
-    #     cahr.down
-
-    #if spacebar
-    #    char.up
-
-    #if char hitting Enemy
-    #   die
 
     model.update()
-    model.player.jump(tock)
-    #pygame.display.update()
+    # model.player.jump(tock)
+    model.player.x += increment
 
 def calibrate():
     """Calibrate the sensors"""
@@ -201,7 +217,7 @@ def calibrate():
     # Do arduino magic
 
 def die():
-    print("You died! Play again soon.")
+    print("You died! Play again.")
     pygame.quit()
     global alive
     alive = False
@@ -220,6 +236,7 @@ GameWindow = pygame.display.set_mode((screenx, screeny))
 model = Model(size)
 view = View(model, size)
 model.add_block(5, GameWindow)
+model.floorTest()
 controller = KeyboardController(model)
 
 
