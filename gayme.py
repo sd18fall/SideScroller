@@ -102,8 +102,12 @@ class Enemy(Character):
 class Player(Character):
     def enemyEncounter(self, enemySet):
         for enemy in enemySet:
-            if self.x + self.size >= enemy.x - enemy.size and self.x + self.size <= enemy.x + enemy.size
-                or self.x - self.size >= enemy.x - enemy.size and self.x - self.size <= enemy.x + enemy.size:
+            if (self.x + self.size >= enemy.x - enemy.size and self.x + self.size <= enemy.x + enemy.size)
+                or (self.x - self.size >= enemy.x - enemy.size and self.x - self.size <= enemy.x + enemy.size)
+                or (self.y + self.size >= enemy.y - enemy.size and self.y + self.size <= enemy.y + enemy.size)
+                or (self.y - self.size >= enemy.y - enemy.size and self.y - self.size <= enemy.y + enemy.size):
+                die()
+
 
 
 
@@ -221,7 +225,6 @@ model = Model(size)
 view = View(model, size)
 model.add_block(5, GameWindow)
 controller = KeyboardController(model)
-
 
 while alive:
     view.draw()
