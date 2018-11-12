@@ -59,8 +59,11 @@ class Model:
         for i in self.enemies:
             i.appear(screen)
 
-    def update(self):
-        self.player.update(self.blocks)
+    def update(self, tock):
+        self.player.update(self.blocks, self.enemies, tock)
+        for enemy in self.enemies:
+            enemy.update(self.blocks, tock)
+            enemy.shoot(self.player)
 
     def appear(self):
         for block in self.blocks:
@@ -83,41 +86,44 @@ class Character:
                 jumpStart (a tock time), midJump (boolean)
     Methods: update, appear, rect, collision
     '''
-    def __init__(self, x, y, v=0, size=25, sprite=None):
+    def __init__(self, x, y, vx = 0, vy = 0, size = 25, sprite = None, ):
         self.x = x
         self.y = y
-        self.v = v
+        self.vx = vx
+        self.vy = vy
         self.size = size
         self.sprite = sprite
         self.jumpStart = None # when did the jump start (in tocks)
 
-    def update(self, blockSet):
+    def update(self, blockSet, tock):
+        if self.jumpStart != None:
+            self.jump(tock)
+        self.y = self.y + self.vy
+        self.x = self.x + self.vx
         self.collision(blockSet)
-        self.y = self.y + self.v
 
     def rect(self):
         """Makes a pygame Rect object for the character.
         Must be updated for any new x-y values, and called as charName.rect()"""
         return pygame.Rect(self.x, self.y, self.size, self.size)
 
-    def appear(self, screen=GameWindow):
-        #draw the sprite at x, y
-        pygame.draw.rect(screen, (0,255,0), self.rect())
-
     def jump(self, tock):
         if self.jumpStart is None:
             # If we haven't started jumping already, make the current tock the start time.
             self.jumpStart = tock
 
-        if tock - self.jumpStart > jumpDuration-2:
-            # If we're over the jump duration since we started jumping, stop.
-            self.jumpStart = None
-        elif tock - self.jumpStart <= (jumpDuration-2)/2:
+        # if tock - self.jumpStart > jumpDuration-2:
+        #     # If we're over the jump duration since we started jumping, stop.
+        #     self.jumpStart = None
+        if tock - self.jumpStart <= (jumpDuration-2)/2:
             # Rise for the first half of the jump
-            self.v = -increment
-        elif tock - self.jumpStart > (jumpDuration-2)/2:
-            # Fall for the second half of the jump
-            self.v = increment
+            self.vy = -increment
+        else:
+            # If we're not rising, stop 'jumping'. Falling is taken care of elsewhere.
+            jumpStart = None
+        # elif tock - self.jumpStart > (jumpDuration-2)/2:
+        #     # Fall for the second half of the jump
+        #     self.vy = increment
 
     def collision(self, blockSet):
         """Detect characters colliding with blocks and bump them back appropriately"""
@@ -125,8 +131,32 @@ class Character:
         # Convert things into rect form and use pygame's collildelistall rect method
             # to find all collisions
         char = self.rect()
-        blockRects = []
-        blockList = [block.rect() for block in blockSet]
+        blockRects = [block.rect() for block in blockSet]
+
+        # char.x += 1
+        # bumpR = char.collidelistall(blockRects)
+        # if bumpR != []:
+        #     print('bumpR')
+        #     self.x = blockRects[bumpR[0]].left - self.size
+        # char.x -= 2
+        # bumpL = char.collidelistall(blockRects)
+        # if  bumpL != []:
+        #     print('bumpL')
+        #     self.x = blockRects[bumpL[0]].right
+        # char.y -= 1
+        # bumpT = char.collidelistall(blockRects)
+        # if  bumpT != []:
+        #     print('bumpT')
+        #     self.y = blockRects[bumpT[0]].bottom
+        # char.y += 2
+        # bumpB = char.collidelistall(blockRects)
+        # if  bumpB != []:
+        #     print('bumpB')
+        #     self.y = blockRects[bumpB[0]].top - self.size
+        #     floorFlag = True
+        #     self.jumpStart = None
+        # print('cycle')
+
 
         indicies = char.collidelistall(blockRects)
         print(indicies)
@@ -138,13 +168,17 @@ class Character:
             thisBlock = blockSet[i]
 
             # if self.y + self.size <= thisBlock.y + thisBlock.h and self.y - self.size >= thisBlock.y - thisBlock.h:
-            if math.isclose((self.y+self.size), (thisBlock.y+(thisBlock.h)/2), abs_tol=(thisBlock.h)/2):
+            if math.isclose((self.y+self.size), (thisBlock.y+(thisBlock.h)/4), abs_tol=(thisBlock.h)/4):
                 self.y = thisBlock.y - self.size
-                self.v = 0
+                self.vy = 0
                 floorFlag = True
+                jumpStart = None
+                print('floor')
+
             # elif self.y <= thisBlock.y + thisBlock.h and self.y + self.size >= thisBlock.y + thisBlock.h:
             elif math.isclose(self.y, (thisBlock.y+(thisBlock.h)/2), abs_tol=(thisBlock.h)/2):
                 self.y += 3*increment
+                print('head')
 
             if not floorFlag and self.x + self.size >= thisBlock.x - thisBlock.w and self.x + self.size <= thisBlock.x + thisBlock.w:
                 self.x -= 3*increment
@@ -154,19 +188,61 @@ class Character:
                 print('hit left')
 
         # If none of these collisions is a floor, and we're not currently jumping, fall.
-        if not self.jumpStart == None and not floorFlag:
-            self.v = increment
+        if self.jumpStart == None and not floorFlag:
+            print('fall')
+            self.vy = increment
 
 class Enemy(Character):
     """Class for enemy characters, inheriting from the general Character."""
-    pass
+    def appear(self, screen=GameWindow):
+        #draw the sprite at x, y
+        pygame.draw.rect(screen, (255,0,0), self.rect())
+    def shoot(self,  player, difficulty = 1):
+        self.projectile = Projectile(self.x,self.y)
+        self.projectile.appear(GameWindow)
+        self.projectile.update()
+        if difficulty == 1:
+            pass
+        elif difficulty ==2:
+            self.projectile.go('left')
+        elif difficulty ==3:
+            self.projectile.aimed_shot(player, self)
 
+class Projectile(Enemy):
+    '''Class for projectiles that enemies shoot'''
+    def appear(self, GameWindow):
+        pygame.draw.ellipse(GameWindow, (255,0,0), self.rect())
+    def go(self, direction):
+        if direction == 'left':
+            self.vx = -1
+            self.vy = 0
+        elif direction == 'right':
+            self.vx = 1
+            self.vy = 0
+        elif direction == 'down':
+            self.vy = 1
+            self.vx = 0
+        else:
+            self.vy = -1
+            self.vx = 0
+    def aimed_shot(self,player,enemy):
+        x_dist = player.x-enemy.x
+        y_dist = player.y - enemy.y
+        self.vx=x_dist/100
+        self.vy=y_dist/100
+    def update(self):
+        self.x+=self.vx
+        self.y+=self.vy
 
 class Player(Character):
     """Class for player, inheriting from general Character.
     New Attributes:
     New Methods: enemyEncounter
     """
+    def appear(self, screen=GameWindow):
+        #draw the sprite at x, y
+        pygame.draw.rect(screen, (0,255,0), self.rect())
+
     def enemyEncounter(self, enemySet):
         """tl;dr: If you're touching an enemy, die.
         Converts all characters into rectangles and uses pygame's colliderect
@@ -176,22 +252,28 @@ class Player(Character):
             if char.colliderect(enemy.rect()):
                 die()
 
-    def onScreen(self, screeny):
-        if self.y > screeny:
+    def onScreen(self, screenx, screeny):
+        if self.y > screeny or self.y < 0 or self.x < 0:
+            # If you go offscreen up, down, or left, die.
             die()
 
-    def update(self, blockSet, enemySet=[]):
-        self.onScreen(screeny)
-        self.collision(blockSet)
+    def update(self, blockSet, enemySet, tock):
+        self.onScreen(screenx, screeny)
+        if self.jumpStart != None:
+            self.jump(tock)
+        self.y = self.y + self.vy
+        self.x = self.x + self.vx
         self.enemyEncounter(enemySet)
-        self.y = self.y + self.v
+        self.collision(blockSet)
 
-class Block:
+
+
+class Block():
     """Class for rectangular blocks for the characters to navigate.
     Attributes: x, y, w (width), h (height), color
     Methods: rect, appear
     """
-    def __init__(self, x, y, width=20, height=50, color=(255,0,0)):
+    def __init__(self, x, y, width=20, height=50, color=(0,0,150)):
         self.x = x
         self.y = y
         self.w = width
@@ -204,7 +286,6 @@ class Block:
 
     def appear(self, screen=GameWindow):
         pygame.draw.rect(screen, self.color, self.rect())
-
 
 class View():
     def __init__(self, model, screenincrementGameWindow):
@@ -232,18 +313,18 @@ class KeyboardController():
         """ Up and down presses modify the y of the player """
         if event.type != pygame.locals.KEYDOWN:
             return
-        if event.key == pygame.K_UP:
+        while event.key == pygame.K_UP:
             self.model.player.jump(tock)
             #self.model.player.y-=5
-            self.model.update
-        if event.key == pygame.K_LEFT:
+            self.model.update(tock)
+        while event.key == pygame.K_LEFT:
             self.model.player.x -= increment
             #self.model.player.y-=5
-            self.model.update
-        if event.key == pygame.K_RIGHT:
+            self.model.update(tock)
+        while event.key == pygame.K_RIGHT:
             self.model.player.x += increment
             #self.model.player.y-=5
-            self.model.update
+            self.model.update(tock)
 
 
 
@@ -253,11 +334,10 @@ class KeyboardController():
 
 def update(tock):
     """Calls all the update and draw functions for one frame step"""
-    model.update()
+    model.update(tock)
     view.draw()
-    time.sleep(.001)
-    #model.player.jump(tock)
-    #model.player.x += increment
+    time.sleep(1)
+
 
 def calibrate():
     """Function to guide the user to calibrate the sensors.
@@ -295,9 +375,6 @@ while alive:
         controller.handle_event(event,tock)
 
     update(tock)
-
-    #if input("What do? ") == 'Die':
-    #    die()
 
     tock += 1
 
