@@ -12,6 +12,8 @@ import serial #must install pySerial using 'pip install pyserial'
 import random
 import math
 
+import pdb
+
 
 # ==============================================================================
 #                                  Setup
@@ -115,12 +117,13 @@ class Character:
         # if tock - self.jumpStart > jumpDuration-2:
         #     # If we're over the jump duration since we started jumping, stop.
         #     self.jumpStart = None
-        if tock - self.jumpStart <= (jumpDuration-2)/2:
+        if tock - self.jumpStart < (jumpDuration)/2:
             # Rise for the first half of the jump
             self.vy = -increment
         else:
             # If we're not rising, stop 'jumping'. Falling is taken care of elsewhere.
-            jumpStart = None
+            self.jumpStart = None
+            self.vy = 0
         # elif tock - self.jumpStart > (jumpDuration-2)/2:
         #     # Fall for the second half of the jump
         #     self.vy = increment
@@ -158,6 +161,7 @@ class Character:
                 self.vy += increment
             if thisBlock.bottom >= char.bottom and char.bottom >= thisBlock.top\
                 and char.bottom <= thisBlock.centery:
+                print('hit floor')
                 self.y = thisBlock.top - self.size +1
                 self.vy = 0
                 floorFlag = True
@@ -167,6 +171,8 @@ class Character:
         if self.jumpStart == None and not floorFlag:
             print('fall')
             self.vy = increment
+        elif self.jumpStart != None:
+            print('free jump')
 
 class Enemy(Character):
     """Class for enemy characters, inheriting from the general Character."""
@@ -348,8 +354,8 @@ def die():
     pygame.quit()
     global alive
     alive = False
-    while 1:
-        pass
+    # while 1:
+    #     pass
 
 
 
@@ -363,7 +369,7 @@ model.add_block(5, GameWindow)
 model.floorTest()
 controller = KeyboardController(model)
 
-while alive:
+while not alive:
     for event in pygame.event.get():
         if event.type == pygame.locals.QUIT:
             die()
@@ -378,10 +384,19 @@ while alive:
 # ==============================================================================
 #                                 Testing
 # ==============================================================================
-if __name__ != "__main__":
+if __name__ == "__main__":
 
     pygame.init()
 
+
+    model.player.vx = 2*increment
+    update(tock)
+    tock += 1
+    model.player.jump(tock)
+    for tock in range(1, 12):
+        update(tock)
+        tock += 1
+    die()
 
     '''
     #reads serial output of arduino
@@ -390,6 +405,5 @@ if __name__ != "__main__":
             myData = arduinoSerialData.readline()
             print myData
     '''
-    print('that testing sure did happen')
 
-    pygame.quit()
+    print('that testing sure did happen')
