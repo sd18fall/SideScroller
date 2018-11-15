@@ -74,7 +74,7 @@ class Model:
 
     def floorTest(self):
         """For testing purposes. Generates a floor block and some random blocks to the right."""
-        self.blocks.append(Block(0, screeny*4/5, width=600, height=15, color=(255,255,0)))
+        self.blocks.append(Block(0, screeny*4/5, width=600, height=25, color=(255,255,0)))
         self.blocks.append(Block(random.randint(400,600),random.randint(350,425)))
 
 class Character:
@@ -133,59 +133,35 @@ class Character:
         char = self.rect()
         blockRects = [block.rect() for block in blockSet]
 
-        # char.x += 1
-        # bumpR = char.collidelistall(blockRects)
-        # if bumpR != []:
-        #     print('bumpR')
-        #     self.x = blockRects[bumpR[0]].left - self.size
-        # char.x -= 2
-        # bumpL = char.collidelistall(blockRects)
-        # if  bumpL != []:
-        #     print('bumpL')
-        #     self.x = blockRects[bumpL[0]].right
-        # char.y -= 1
-        # bumpT = char.collidelistall(blockRects)
-        # if  bumpT != []:
-        #     print('bumpT')
-        #     self.y = blockRects[bumpT[0]].bottom
-        # char.y += 2
-        # bumpB = char.collidelistall(blockRects)
-        # if  bumpB != []:
-        #     print('bumpB')
-        #     self.y = blockRects[bumpB[0]].top - self.size
-        #     floorFlag = True
-        #     self.jumpStart = None
-        # print('cycle')
-
-
         indicies = char.collidelistall(blockRects)
-        print(indicies)
 
         # For each block that we collided with, check which side of the character
             # is within the block's space.
             # Then, move character the opposite direction.
         for i in indicies:
-            thisBlock = blockSet[i]
-
-            # if self.y + self.size <= thisBlock.y + thisBlock.h and self.y - self.size >= thisBlock.y - thisBlock.h:
-            if math.isclose((self.y+self.size), (thisBlock.y+(thisBlock.h)/4), abs_tol=(thisBlock.h)/4):
-                self.y = thisBlock.y - self.size
+            thisBlock = blockRects[i]
+            if thisBlock.left <= char.right and char.right <= thisBlock.right\
+                and char.right <= thisBlock.centerx:
+                print('hit right')
+                self.x = thisBlock.left - self.size
+                self.vx = 0
+            if thisBlock.left <= char.left and char.left <= thisBlock.left\
+                and char.left >= thisBlock.centerx:
+                print('hit left')
+                self.x = thisBlock.right
+                self.vx = 0
+            if thisBlock.bottom >= char.top and char.top >= thisBlock.top\
+                and char.top >= thisBlock.centery:
+                print('hit top')
+                self.jumpStart = None
+                self.y = thisBlock.bottom
+                self.vy += increment
+            if thisBlock.bottom >= char.bottom and char.bottom >= thisBlock.top\
+                and char.bottom <= thisBlock.centery:
+                self.y = thisBlock.top - self.size +1
                 self.vy = 0
                 floorFlag = True
-                jumpStart = None
-                print('floor')
-
-            # elif self.y <= thisBlock.y + thisBlock.h and self.y + self.size >= thisBlock.y + thisBlock.h:
-            elif math.isclose(self.y, (thisBlock.y+(thisBlock.h)/2), abs_tol=(thisBlock.h)/2):
-                self.y += 3*increment
-                print('head')
-
-            if not floorFlag and self.x + self.size >= thisBlock.x - thisBlock.w and self.x + self.size <= thisBlock.x + thisBlock.w:
-                self.x -= 3*increment
-                print('hit right')
-            elif not floorFlag and self.x >= thisBlock.x - thisBlock.w and self.x <= thisBlock.x + thisBlock.w:
-                self.x += 3*increment
-                print('hit left')
+                self.jumpStart = None
 
         # If none of these collisions is a floor, and we're not currently jumping, fall.
         if self.jumpStart == None and not floorFlag:
@@ -212,6 +188,7 @@ class Projectile(Enemy):
     '''Class for projectiles that enemies shoot'''
     def appear(self, GameWindow):
         pygame.draw.ellipse(GameWindow, (255,0,0), self.rect())
+
     def go(self, direction):
         if direction == 'left':
             self.vx = -1
@@ -225,14 +202,33 @@ class Projectile(Enemy):
         else:
             self.vy = -1
             self.vx = 0
+
     def aimed_shot(self,player,enemy):
         x_dist = player.x-enemy.x
         y_dist = player.y - enemy.y
         self.vx=x_dist/100
         self.vy=y_dist/100
+
     def update(self):
         self.x+=self.vx
         self.y+=self.vy
+
+    def vanish(self):
+        #Temporary hiding code
+        # TODO: this.
+        self.x = screenx+10
+        self.y = screeny+10
+        self.vx = 0
+        self.vy = 0
+
+    def collision(self, blockSet):
+        """
+        Converts all walls into rectangles and uses pygame's colliderect
+        rect method to find any collisions. In case of a collision, vanish is called."""
+        char = self.rect()
+        for block in blockSet:
+            if char.colliderect(block.rect()):
+                self.vanish()
 
 class Player(Character):
     """Class for player, inheriting from general Character.
@@ -315,15 +311,12 @@ class KeyboardController():
             return
         while event.key == pygame.K_UP:
             self.model.player.jump(tock)
-            #self.model.player.y-=5
             self.model.update(tock)
         while event.key == pygame.K_LEFT:
-            self.model.player.x -= increment
-            #self.model.player.y-=5
+            self.model.player.vx = -increment
             self.model.update(tock)
         while event.key == pygame.K_RIGHT:
-            self.model.player.x += increment
-            #self.model.player.y-=5
+            self.model.player.vx = increment
             self.model.update(tock)
 
 
@@ -355,6 +348,8 @@ def die():
     pygame.quit()
     global alive
     alive = False
+    while 1:
+        pass
 
 
 
