@@ -366,6 +366,7 @@ def die():
 model = Model(size)
 view = View(model, GameWindow)
 model.add_block(5, GameWindow)
+model.add_enemy(5, GameWindow)
 model.floorTest()
 controller = KeyboardController(model)
 
