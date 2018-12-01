@@ -21,8 +21,8 @@ import pdb
 # arduinoSerialData = serial.Serial('com11',9600) #com11 can be changed to whatever port arduino is connected to
 
 tock = 0        # timer by number of cycles
-jumpDuration = 10 # must be even
-increment = 5       # number of pixels to step when moving
+jumpDuration = 16 # must be even
+increment = 8       # number of pixels to step when moving
 screenx = 800    # game window width
 screeny = 500    # game window height
 size = (screenx,screeny)
@@ -48,21 +48,41 @@ class Model:
         self.blocks = []        # list of Block objects
         self.enemies = []       # list of Enemy objects
 
-    def add_block(self,num_block, screen=GameWindow):
+    def add_block(self,num_block, screen=GameWindow, end_block = False):
         """Add a randomly generated set of blocks anywhere onscreen"""
-        for i in range(num_block):
-            self.blocks.append(Block(random.randint(0,screenx),random.randint(0,screeny)))
+        counter = 0
+        if end_block == True:
+            for block in self.blocks:
+                if block.x > 650:
+                    counter +=1
+            if counter < 1:
+                self.blocks.append(Block((800), random.randint(0,screeny)))
+        if end_block == False:
+            for i in range(num_block):
+                    self.blocks.append(Block(800/num_block*i,random.randint(0,screeny)))
+
         for i in self.blocks:
             i.appear(screen)
 
-    def add_enemy(self,num_enemy, screen=GameWindow):
-        for i in range(num_enemy):
-            self.enemies.append(Enemy(random.randint(0,screenx),random.randint(0,screeny)))
+    def add_enemy(self,num_enemy, screen=GameWindow, endemy = False, spawn = random.randint(0,5)):
+        counter = 0
+        if endemy == True and spawn ==3:
+            for enemy in self.enemies:
+                if enemy.x > 650:
+                    counter +=1
+            if counter < 1:
+                self.enemies.append(Enemy((800), random.randint(0,screeny)))
+        if endemy == False:
+            for i in range(num_enemy):
+                    self.enemies.append(Enemy(random.randint(0,screenx),random.randint(0,screeny)))
+
         for i in self.enemies:
             i.appear(screen)
 
     def update(self, tock):
         self.player.update(self.blocks, self.enemies, tock)
+        for block in self.blocks:
+            block.update()
         for enemy in self.enemies:
             enemy.update(self.blocks, tock)
             enemy.shoot(self.player)
@@ -98,11 +118,13 @@ class Character:
         self.jumpStart = None # when did the jump start (in tocks)
 
     def update(self, blockSet, tock):
+        self.collision(blockSet)
         if self.jumpStart != None:
             self.jump(tock)
         self.y = self.y + self.vy
         self.x = self.x + self.vx
-        self.collision(blockSet)
+        self.x-=increment
+
 
     def rect(self):
         """Makes a pygame Rect object for the character.
@@ -119,7 +141,7 @@ class Character:
         #     self.jumpStart = None
         if tock - self.jumpStart < (jumpDuration)/2:
             # Rise for the first half of the jump
-            self.vy = -increment
+            self.vy = -(2*increment)
         else:
             # If we're not rising, stop 'jumping'. Falling is taken care of elsewhere.
             self.jumpStart = None
@@ -189,6 +211,7 @@ class Enemy(Character):
             self.projectile.go('left')
         elif difficulty ==3:
             self.projectile.aimed_shot(player, self)
+
 
 class Projectile(Enemy):
     '''Class for projectiles that enemies shoot'''
@@ -264,7 +287,7 @@ class Player(Character):
         if self.jumpStart != None:
             self.jump(tock)
         self.y = self.y + self.vy
-        self.x = self.x + self.vx
+        #self.x = self.x + self.vx
         self.enemyEncounter(enemySet)
         self.collision(blockSet)
 
@@ -275,7 +298,7 @@ class Block():
     Attributes: x, y, w (width), h (height), color
     Methods: rect, appear
     """
-    def __init__(self, x, y, width=20, height=50, color=(0,0,150)):
+    def __init__(self, x, y, width=150, height=20, color=(0,0,150)):
         self.x = x
         self.y = y
         self.w = width
@@ -288,6 +311,9 @@ class Block():
 
     def appear(self, screen=GameWindow):
         pygame.draw.rect(screen, self.color, self.rect())
+
+    def update(self):
+        self.x-=increment
 
 class View():
     def __init__(self, model, screenincrementGameWindow):
@@ -333,7 +359,10 @@ class KeyboardController():
 
 def update(tock):
     """Calls all the update and draw functions for one frame step"""
+    counter = 0
     model.update(tock)
+    model.add_block(1,GameWindow, True)
+    model.add_enemy(1,GameWindow, True)
     view.draw()
     time.sleep(1)
 
@@ -367,6 +396,7 @@ model = Model(size)
 view = View(model, GameWindow)
 model.add_block(5, GameWindow)
 model.add_enemy(5, GameWindow)
+model.add_block(1, GameWindow, True)
 model.floorTest()
 controller = KeyboardController(model)
 
@@ -374,6 +404,7 @@ while not alive:
     for event in pygame.event.get():
         if event.type == pygame.locals.QUIT:
             die()
+
         controller.handle_event(event,tock)
 
     update(tock)
@@ -390,11 +421,12 @@ if __name__ == "__main__":
     pygame.init()
 
 
-    model.player.vx = 2*increment
+    model.player.vx = 3*increment
     update(tock)
     tock += 1
     model.player.jump(tock)
-    for tock in range(1, 12):
+
+    for tock in range(1, 50):
         update(tock)
         tock += 1
     die()
