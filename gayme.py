@@ -18,7 +18,7 @@ import pdb
 # ==============================================================================
 #                                  Setup
 # ==============================================================================
-#arduinoSerialData = serial.Serial('com11',9600) #com11 can be changed to whatever port arduino is connected to
+arduinoSerialData = serial.Serial('com21',9600) #com11 can be changed to whatever port arduino is connected to
 
 tock = 0        # timer by number of cycles
 jumpDuration = 16 # must be even
@@ -50,11 +50,17 @@ class View():
     def draw(self):
         """ Draw the current game state to the screen """
         # draw a gradient background
-        for i in range(screenx):
-            pygame.draw.line(self.screen,(i/8+40,i/20+20,i/7+70),(i,0),(i,700))
+        if self.model.endgame == False:
+            for i in range(screenx):
+                pygame.draw.line(self.screen,(i/8+40,i/20+20,i/7+70),(i,0),(i,700))
 
-        self.model.appear(self.screen)
+            self.model.appear(self.screen)
+        if self.model.endgame == True:
+            for i in range(screenx):
+                    pygame.draw.line(self.screen,(i/8+40,0,0),(i,0),(i,700))
         pygame.display.update()
+
+
 
 
 
@@ -129,14 +135,15 @@ if __name__ == "__main__":
     for tock in range(1, 1000):
         update(tock)
         tock += 1
-    die()
+            #reads serial output of arduino
 
-    '''
-    #reads serial output of arduino
-    while (1==1):
         if (arduinoSerialData.inWaiting()>0):
-            myData = arduinoSerialData.readline()
-            print myData
-    '''
+                myData = arduinoSerialData.readline()
+                print( myData)
+
+
+
+
+
 
     print('that testing sure did happen')

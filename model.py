@@ -16,6 +16,7 @@ class Model:
         self.player = Player(px, py)    # place a Player character
         self.blocks = []        # list of Block objects
         self.enemies = []       # list of Enemy objects
+        self.endgame = False
 
     def add_block(self,num_block, screen, end_block = False,  screenx = 800, screeny = 500):
         """Add a randomly generated set of blocks anywhere onscreen"""
@@ -55,6 +56,9 @@ class Model:
         for enemy in self.enemies:
             enemy.update(self.blocks, tock)
             enemy.shoot(screen,self.player,2)
+        self.endGame()
+
+
 
     def appear(self, screen):
         for block in self.blocks:
@@ -62,7 +66,9 @@ class Model:
         for enemy in self.enemies:
             enemy.appear(screen)
         self.player.appear(screen)
-
+    def endGame(self):
+        if self.player.death == True:
+            self.endgame = True
     def floorTest(self, screenx = 800, screeny = 500):
         """For testing purposes. Generates a floor block and some random blocks to the right."""
         self.blocks.append(Block(0, screeny*4/5, width=600, height=25, color=(255,255,0)))
@@ -83,7 +89,8 @@ class Character:
         self.vx = vx
         self.vy = vy
         self.size = size
-        self.sprite = sprite
+        self.sprite = 'TOAST.png'
+        self.death = False
         self.jumpStart = None # when did the jump start (in tocks)
 
     def update(self, blockSet, tock, increment=3):
@@ -101,9 +108,11 @@ class Character:
         return pygame.Rect(self.x, self.y, self.size, self.size)
 
     def jump(self, tock, increment = 5, jumpDuration = 16):
+
         if self.jumpStart is None:
             # If we haven't started jumping already, make the current tock the start time.
             self.jumpStart = tock
+
 
         # if tock - self.jumpStart > jumpDuration-2:
         #     # If we're over the jump duration since we started jumping, stop.
@@ -111,13 +120,16 @@ class Character:
         if tock - self.jumpStart < (jumpDuration)/2:
             # Rise for the first half of the jump
             self.vy = -(2*increment)
+            self.sprite = 'toast_jump.png'
         else:
+
             # If we're not rising, stop 'jumping'. Falling is taken care of elsewhere.
             self.jumpStart = None
             self.vy = 0
         # elif tock - self.jumpStart > (jumpDuration-2)/2:
         #     # Fall for the second half of the jump
         #     self.vy = increment
+        self.sprite = 'TOAST.png'
 
     def collision(self, blockSet, increment = 5):
         """Detect characters colliding with blocks and bump them back appropriately"""
@@ -134,7 +146,7 @@ class Character:
             # Then, move character the opposite direction.
         for i in indicies:
             thisBlock = blockRects[i]
-            if thisBlock.left+10 >= char.right and char.right <= thisBlock.left-10:
+            if thisBlock.left >= char.right and char.right <= thisBlock.left:
                 #and char.right+10 <= thisBlock.centerx:
                 #print('hit right')
                 self.x = thisBlock.left - self.size
@@ -144,24 +156,25 @@ class Character:
                 #print('hit left')
             #    self.x = thisBlock.right
             #    self.vx = 0
-            if thisBlock.bottom >= char.top and char.top >= thisBlock.top\
-                and char.top >= thisBlock.centery:
+            if thisBlock.bottom >= char.top and char.top >= thisBlock.top:
                 #print('hit top')
                 self.jumpStart = None
                 self.y = thisBlock.bottom
                 self.vy += increment
-            if thisBlock.bottom >= char.bottom and char.bottom >= thisBlock.top\
-                and char.bottom <= thisBlock.centery:
+                
+            if thisBlock.bottom >= char.bottom and char.bottom >= thisBlock.top:
                 #print('hit floor')
                 self.y = thisBlock.top - self.size +1
                 self.vy = 0
                 floorFlag = True
                 self.jumpStart = None
+                self.sprite = "TOAST.png"
 
         # If none of these collisions is a floor, and we're not currently jumping, fall.
         if self.jumpStart == None and not floorFlag:
             #print('fall')
             self.vy = increment
+            self.sprite = "toast_jump.png"
         elif self.jumpStart != None:
             #print('free jump')
             pass
@@ -172,7 +185,7 @@ class Enemy(Character):
         #draw the sprite at x, y
         #pygame.draw.rect(screen, (255,0,0), self.rect())
         #pygame.image.load('butter.png')
-        butter = pygame.image.load("butter.png").convert()
+        butter = pygame.image.load("butter.png").convert_alpha()
 
         screen.blit(pygame.transform.scale(butter, (40, 40)), (self.x, self.y-15))
     def shoot(self, screen,  player, difficulty = 1):
@@ -241,7 +254,7 @@ class Player(Character):
     def appear(self, screen):
         #draw the sprite at x, y
         #pygame.draw.rect(screen, (0,255,0), self.rect())
-        butter = pygame.image.load("TOAST.png").convert()
+        butter = pygame.image.load(self.sprite).convert_alpha()
 
         screen.blit(pygame.transform.scale(butter, (40, 40)), (self.x, self.y-17))
     def enemyEncounter(self, enemySet):
@@ -251,26 +264,22 @@ class Player(Character):
         char = self.rect()
         for enemy in enemySet:
             if char.colliderect(enemy.rect()):
+                self.death = True
 
-                    """Ends the game by False-ing the while loop variable"""
-                    print("You died! Play again.")
-                    pygame.quit()
-                    global alive
-                    alive = False
-                    # while 1:
-                    #     pass
 
 
     def onScreen(self,  screenx = 800, screeny = 500):
         if self.y > screeny or self.y < 0 or self.x < 0:
             # If you go offscreen up, down, or left, die.
-                """Ends the game by False-ing the while loop variable"""
-                print("You died! Play again.")
-                pygame.quit()
-                global alive
-                alive = False
+                #"""Ends the game by False-ing the while loop variable"""
+                #print("You died! Play again.")
+                #pygame.quit()
+                #global alive
+                #alive = False
                 # while 1:
                 #     pass
+                self.death = True
+
 
 
     def update(self, blockSet, enemySet, tock, screenx = 800, screeny = 500):
