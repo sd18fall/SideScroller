@@ -8,12 +8,11 @@ import pygame
 import time
 from pygame.locals import *
 #used to connect to arduino
-import serial #must install pySerial using 'pip install pyserial'
+# import serial #must install pySerial using 'pip install pyserial'
 
 import math
 from model import Model
 from view import View
-from calibrate_sonar import SonarController
 import pdb
 
 
@@ -68,8 +67,6 @@ def die():
 # ==============================================================================
 
 model = Model(size)
-# Initialize arduino for sonar
-arduinoSerialData = serial.Serial(model.sonar.port, 9600)
 view = View(model, GameWindow)
 model.add_background(GameWindow, True)
 model.add_block(10, GameWindow)

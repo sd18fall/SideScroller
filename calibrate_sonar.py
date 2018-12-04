@@ -1,6 +1,8 @@
 """ Calibration and support functions to interact with via python
     Assumes arduino is coded to constantly spit out sonar readings"""
 
+import serial
+
 class SonarController():
     """Controller class for an Arduino supporting a Sonar sensor.
     Attributes: port, high, low, max
@@ -10,8 +12,10 @@ class SonarController():
         temp = str(input("Arduino Port Number:"))
         if temp == "testing":
             self.port = "com22"
+            arduinoSerialData = serial.Serial(self.port, 9600)
             return
         self.port = "com"+temp
+        arduinoSerialData = serial.Serial(self.port, 9600)   # Initialize arduino for sonar
         self.calibrate()   #sets self.min and self.max
 
     def data(self):
@@ -25,25 +29,22 @@ class SonarController():
 
     #----------Min----------
         print("Please hold your hand at your comfortable lower limit")
-        input("     ** Enter any key to take the reading.", end = "")
-        print(".", end = "")
+        input("     ** Enter any key to take the reading.")
         self.low = self.data()
-        print(".          Reading taken")
+        print("Reading taken")
 
     #----------Max----------
         print("Please hold your hand at your comfortable upper limit")
-        input("     ** Enter any key to take the reading.", end = "")
-        print(".", end = "")
+        input("     ** Enter any key to take the reading.")
         self.high = self.data()
-        print(".          Reading taken")
+        print("Reading taken")
 
 
     #----------BothNone----------
         print("Please remove both of your hands from the sensor")
-        input("     ** Enter any key to take the reading.", end = "")
-        print(".", end = "")
+        input("     ** Enter any key to take the reading.")
         self.max = self.data()
-        print(".          Reading taken")
+        print("Reading taken")
 
 
     #----------Check and Re-Cal----------

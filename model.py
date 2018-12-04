@@ -7,6 +7,8 @@ Model for SideScroller Game
 import math
 import pygame
 import random
+from calibrate_sonar import SonarController
+
 class Model:
     """The game's model contains all the parts currently tracked as a part of the game.
     Attributes: size, player, blocks, enemies
