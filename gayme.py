@@ -18,7 +18,7 @@ import pdb
 # ==============================================================================
 #                                  Setup
 # ==============================================================================
-arduinoSerialData = serial.Serial('com21',9600) #com11 can be changed to whatever port arduino is connected to
+arduinoSerialData = serial.Serial('com22',9600) #com11 can be changed to whatever port arduino is connected to
 
 tock = 0        # timer by number of cycles
 jumpDuration = 16 # must be even
