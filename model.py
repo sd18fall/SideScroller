@@ -3,6 +3,7 @@
 Model for SideScroller Game
 
 '''
+
 import math
 import pygame
 import random
@@ -17,6 +18,8 @@ class Model:
         self.blocks = []        # list of Block objects
         self.enemies = []       # list of Enemy objects
         self.endgame = False
+        self.background = []
+        self.sonar = SonarController()    # will request port number and calibration
 
     def add_block(self,num_block, screen, end_block = False,  screenx = 800, screeny = 500):
         """Add a randomly generated set of blocks anywhere onscreen"""
@@ -49,18 +52,36 @@ class Model:
         for i in self.enemies:
             i.appear(screen)
 
+    def add_background(self, screen, first_screen = False):
+        counter = 0
+        if first_screen == True:
+            self.background.append(Background(0,0))
+        for back in self.background:
+            if back.x >= 0:
+                counter +=1
+        if counter<1:
+            self.background.append(Background(800,0))
+        for back in self.background:
+            back.appear(screen)
+
     def update(self, tock, screen):
-        self.player.update(self.blocks, self.enemies, tock)
+        #sonarH = self.sonar.data()
+        sonarH = 2
+        self.player.update(self.blocks, self.enemies, tock, sonarH)
         for block in self.blocks:
             block.update()
         for enemy in self.enemies:
             enemy.update(self.blocks, tock)
             enemy.shoot(screen,self.player,2)
+        for back in self.background:
+            back.update()
         self.endGame()
 
 
 
     def appear(self, screen):
+        for back in self.background:
+            back.appear(screen)
         for block in self.blocks:
             block.appear(screen)
         for enemy in self.enemies:
@@ -83,13 +104,14 @@ class Character:
                 jumpStart (a tock time), midJump (boolean)
     Methods: update, appear, rect, collision
     '''
-    def __init__(self, x, y, vx = 0, vy = 0, size = 25, sprite = None, ):
+    def __init__(self, x, y, vx = 0, vy = 0, size = 25, sprite = None ):
         self.x = x
         self.y = y
         self.vx = vx
         self.vy = vy
         self.size = size
         self.sprite = 'TOAST.png'
+        self.distortx = 25
         self.death = False
         self.jumpStart = None # when did the jump start (in tocks)
 
@@ -107,29 +129,18 @@ class Character:
         Must be updated for any new x-y values, and called as charName.rect()"""
         return pygame.Rect(self.x, self.y, self.size, self.size)
 
-    def jump(self, tock, increment = 5, jumpDuration = 16):
+    def jump(self, tock, sonarH = 2, increment = 5, jumpDuration = 16):
 
         if self.jumpStart is None:
             # If we haven't started jumping already, make the current tock the start time.
             self.jumpStart = tock
-
-
-        # if tock - self.jumpStart > jumpDuration-2:
-        #     # If we're over the jump duration since we started jumping, stop.
-        #     self.jumpStart = None
         if tock - self.jumpStart < (jumpDuration)/2:
             # Rise for the first half of the jump
             self.vy = -(2*increment)
-            self.sprite = 'toast_jump.png'
         else:
-
             # If we're not rising, stop 'jumping'. Falling is taken care of elsewhere.
             self.jumpStart = None
-            self.vy = 0
-        # elif tock - self.jumpStart > (jumpDuration-2)/2:
-        #     # Fall for the second half of the jump
-        #     self.vy = increment
-        self.sprite = 'TOAST.png'
+
 
     def collision(self, blockSet, increment = 5):
         """Detect characters colliding with blocks and bump them back appropriately"""
@@ -161,23 +172,22 @@ class Character:
                 self.jumpStart = None
                 self.y = thisBlock.bottom
                 self.vy += increment
-                
+
             if thisBlock.bottom >= char.bottom and char.bottom >= thisBlock.top:
                 #print('hit floor')
                 self.y = thisBlock.top - self.size +1
                 self.vy = 0
                 floorFlag = True
+                # self.floor = True
                 self.jumpStart = None
                 self.sprite = "TOAST.png"
+                self.distortx = 40
 
         # If none of these collisions is a floor, and we're not currently jumping, fall.
-        if self.jumpStart == None and not floorFlag:
-            #print('fall')
+        if self.jumpStart == None and not floorFlag:#self.floor:
             self.vy = increment
             self.sprite = "toast_jump.png"
-        elif self.jumpStart != None:
-            #print('free jump')
-            pass
+            self.distortx = 55
 
 class Enemy(Character):
     """Class for enemy characters, inheriting from the general Character."""
@@ -256,38 +266,25 @@ class Player(Character):
         #pygame.draw.rect(screen, (0,255,0), self.rect())
         butter = pygame.image.load(self.sprite).convert_alpha()
 
-        screen.blit(pygame.transform.scale(butter, (40, 40)), (self.x, self.y-17))
+        screen.blit(pygame.transform.scale(butter, (self.distortx, 40)), (self.x, self.y-17))
     def enemyEncounter(self, enemySet):
-        """tl;dr: If you're touching an enemy, die.
-        Converts all characters into rectangles and uses pygame's colliderect
-        rect method to find any collisions. In case of a collision, die() is called."""
+        """Converts all characters into rectangles and uses pygame's 'colliderect'
+        rect method to find any collisions. In case of a collision, self.death is true."""
         char = self.rect()
         for enemy in enemySet:
             if char.colliderect(enemy.rect()):
                 self.death = True
 
-
-
     def onScreen(self,  screenx = 800, screeny = 500):
         if self.y > screeny or self.y < 0 or self.x < 0:
             # If you go offscreen up, down, or left, die.
-                #"""Ends the game by False-ing the while loop variable"""
-                #print("You died! Play again.")
-                #pygame.quit()
-                #global alive
-                #alive = False
-                # while 1:
-                #     pass
-                self.death = True
+            self.death = True
 
-
-
-    def update(self, blockSet, enemySet, tock, screenx = 800, screeny = 500):
+    def update(self, blockSet, enemySet, tock, sonarH=2, screenx = 800, screeny = 500):
         self.onScreen(screenx, screeny)
         if self.jumpStart != None:
             self.jump(tock)
         self.y = self.y + self.vy
-        #self.x = self.x + self.vx
         self.enemyEncounter(enemySet)
         self.collision(blockSet)
 
@@ -314,3 +311,13 @@ class Block():
 
     def update(self, increment=3):
         self.x-=increment
+
+class Background():
+        def __init__(self, x, y):
+            self.x = x
+            self.y = y
+        def appear(self, screen):
+            kitchen = pygame.image.load('kitchen.png').convert_alpha()
+            screen.blit(pygame.transform.scale(kitchen, (800, 500)), (self.x, self.y))
+        def update(self, increment=3):
+            self.x-=increment

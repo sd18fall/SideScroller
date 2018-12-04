@@ -12,13 +12,14 @@ import serial #must install pySerial using 'pip install pyserial'
 
 import math
 from model import Model
+from view import View
+from calibrate_sonar import SonarController
 import pdb
 
 
 # ==============================================================================
 #                                  Setup
 # ==============================================================================
-arduinoSerialData = serial.Serial('com22',9600) #com11 can be changed to whatever port arduino is connected to
 
 tock = 0        # timer by number of cycles
 jumpDuration = 16 # must be even
@@ -37,33 +38,7 @@ alive = True
 #                                  Classes
 # ==============================================================================
 
-
-
-class View():
-    def __init__(self, model, screenincrementGameWindow):
-        """ Initialize the view with a reference to the model and the
-            specified game screen dimensions (represented as a tuple
-            containing the width and height) """
-        self.model = model
-        self.screen = GameWindow
-
-    def draw(self):
-        """ Draw the current game state to the screen """
-        # draw a gradient background
-        if self.model.endgame == False:
-            for i in range(screenx):
-                pygame.draw.line(self.screen,(i/8+40,i/20+20,i/7+70),(i,0),(i,700))
-
-            self.model.appear(self.screen)
-        if self.model.endgame == True:
-            for i in range(screenx):
-                    pygame.draw.line(self.screen,(i/8+40,0,0),(i,0),(i,700))
-        pygame.display.update()
-
-
-
-
-
+# In Other Files
 
 # ==============================================================================
 #                                 Functions
@@ -75,19 +50,9 @@ def update(tock):
     model.update(tock, GameWindow)
     model.add_block(1,GameWindow, True)
     model.add_enemy(1,GameWindow, True)
-    view.draw()
+    model.add_background(GameWindow)
+    view.draw(screenx)
     time.sleep(.01)
-
-
-def calibrate():
-    """Function to guide the user to calibrate the sensors.
-    Incomplete; requires arduino magic at thsi time."""
-    print("Please hold your hands at your comfortable lower limit")
-    # Do arduino magic
-    print("Please hold your hands at your comfortable upper limit")
-    # Do arduino magic
-    print("Please remove your hands from the sensors")
-    # Do arduino magic
 
 def die():
     """Ends the game by False-ing the while loop variable"""
@@ -95,8 +60,6 @@ def die():
     pygame.quit()
     global alive
     alive = False
-    # while 1:
-    #     pass
 
 
 
@@ -105,7 +68,10 @@ def die():
 # ==============================================================================
 
 model = Model(size)
+# Initialize arduino for sonar
+arduinoSerialData = serial.Serial(model.sonar.port, 9600)
 view = View(model, GameWindow)
+model.add_background(GameWindow, True)
 model.add_block(10, GameWindow)
 model.add_enemy(5, GameWindow)
 model.add_block(1, GameWindow, True)
@@ -135,15 +101,12 @@ if __name__ == "__main__":
     for tock in range(1, 1000):
         update(tock)
         tock += 1
-            #reads serial output of arduino
 
-        if (arduinoSerialData.inWaiting()>0):
-                myData = arduinoSerialData.readline()
-                print( myData)
-
-
-
-
+        sonarH = sonar.data()
+        print(sonarH)
+        # if (arduinoSerialData.inWaiting()>0):
+        #         myData = arduinoSerialData.readline()
+        #         print( myData)
 
 
     print('that testing sure did happen')
