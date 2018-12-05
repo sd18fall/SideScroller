@@ -16,11 +16,14 @@ class SonarController():
             return
         self.port = "com"+temp
         self.arduinoSerialData = serial.Serial(self.port, 9600)   # Initialize arduino for sonar
-        self.calibrate()   #sets self.min and self.max
+        # self.calibrate()   #sets self.min and self.max
+        for i in range(8):
+            print(self.data())
 
     def data(self):
         raw = self.arduinoSerialData.readline()
         # b'0.00\r\n' b'6344.00\r\n' b'7928.00\r\n'
+        return raw
 
 #--------------------------- Calibration Function -----------------------------
 
