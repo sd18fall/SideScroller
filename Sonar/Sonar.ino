@@ -50,8 +50,8 @@ int readSonar() {
 }
 
 
-void pln(float var) {Serial.println(var);}
+void pln(long var) {Serial.println(var);}
 
-void pSln(float var) {
-  Serial.println(String(var, 2));
+void pSln(long var) {
+  Serial.println(String(var));
 }
