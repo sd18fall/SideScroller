@@ -23,6 +23,7 @@ class SonarController():
     def data(self):
         raw = self.arduinoSerialData.readline()
         # b'0.00\r\n' b'6344.00\r\n' b'7928.00\r\n'
+        data = raw.strip(b'\r')
         return raw
 
 #--------------------------- Calibration Function -----------------------------
@@ -52,14 +53,14 @@ class SonarController():
 
 
     #----------Check and Re-Cal----------
-        # if (abs(self.max - self.high) < calThresh):
-        #     reCal()
-        #     calibrate()
-        #     return
+        if (abs(self.max - self.high) < calThresh):
+            reCal()
+            calibrate()
+            return
 
 
     #----------Diff and Print----------
-        # self.calDiff = self.high-self.low
+        self.calDiff = self.high-self.low
         print("Lower, Upper, Max, Diff")
         print(self.low, self.high, self.max)#, self.calDiff)
 
