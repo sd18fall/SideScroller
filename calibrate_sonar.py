@@ -23,7 +23,7 @@ class SonarController():
     def data(self):
         raw = self.arduinoSerialData.readline()
         # b'0.00\r\n' b'6344.00\r\n' b'7928.00\r\n'
-        data = raw.strip(b'\r')
+        # data = raw.strip("b'\r'")
         return raw
 
 #--------------------------- Calibration Function -----------------------------

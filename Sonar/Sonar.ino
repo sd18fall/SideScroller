@@ -12,7 +12,7 @@ const int sonarTrig = 3;
 const int sonar = 2;
 
 //Take and print Reading
-long duration;
+int duration;
 
 
 //--------------------------- Main Setup and Loop ------------------------------
@@ -32,8 +32,8 @@ void loop() {
 
 
 void send() {
-    dist = readSonar();
-    pSln(dist);
+    duration = readSonar();
+    pln(duration);
 }
 
 int readSonar() {
@@ -50,8 +50,4 @@ int readSonar() {
 }
 
 
-void pln(long var) {Serial.println(var);}
-
-void pSln(long var) {
-  Serial.println(String(var));
-}
+void pln(int var) {Serial.println(var);}
