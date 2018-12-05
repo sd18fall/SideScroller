@@ -46,12 +46,12 @@ alive = True
 def update(tock):
     """Calls all the update and draw functions for one frame step"""
     counter = 0
-    model.update(tock, GameWindow)
+    model.update(tock, GameWindow, increment)
     model.add_block(1,GameWindow, True)
     model.add_enemy(1,GameWindow, True)
     model.add_background(GameWindow)
     view.draw(screenx)
-    time.sleep(.01)
+    time.sleep(.001)
 
 def die():
     """Ends the game by False-ing the while loop variable"""
@@ -67,6 +67,7 @@ def die():
 # ==============================================================================
 
 model = Model(size)
+#model.sonar.reset()
 view = View(model, GameWindow)
 model.add_background(GameWindow, True)
 model.add_block(10, GameWindow)
@@ -90,7 +91,7 @@ if __name__ == "__main__":
     pygame.init()
 
 
-    model.player.vx = 3*increment
+    #model.player.vx = 3*increment
     update(tock)
     tock += 1
     model.player.jump(tock)
@@ -100,7 +101,7 @@ if __name__ == "__main__":
         tock += 1
 
         sonarH = model.sonar.data()
-        print(sonarH)
+        #print(sonarH)
         # if (arduinoSerialData.inWaiting()>0):
         #         myData = arduinoSerialData.readline()
         #         print( myData)

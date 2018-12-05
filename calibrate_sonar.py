@@ -9,22 +9,22 @@ class SonarController():
     Methods: data, calibrate, reCal
     """
     def __init__(self):
-        temp = str(input("Arduino Port Number:"))
-        if temp == "testing":
-            self.port = "com22"
-            self.arduinoSerialData = serial.Serial(self.port, 9600)
-            return
-        self.port = "com"+temp
+        self.port = "com22"
         self.arduinoSerialData = serial.Serial(self.port, 9600)   # Initialize arduino for sonar
-        # self.calibrate()   #sets self.min and self.max
-        for i in range(8):
-            print(self.data())
+        self.min = 0
+        self.max = 100
+        self.none = 200
 
     def data(self):
         raw = self.arduinoSerialData.readline()
-        # b'0.00\r\n' b'6344.00\r\n' b'7928.00\r\n'
-        # data = raw.strip("b'\r'")
-        return raw
+        data = raw.decode().strip('\r\n')
+        return data
+
+    def reset(self):
+        self.port = "com" + str(input("Arduino Port (just the number):"))
+        print("\nBegin calibration...")
+        self.calibrate()   #resets self.min, self.max, self.none
+
 
 #--------------------------- Calibration Function -----------------------------
 
@@ -34,39 +34,39 @@ class SonarController():
 
     #----------Min----------
         print("Please hold your hand at your comfortable lower limit")
-        input("     ** Enter any key to take the reading.")
-        self.low = self.data()
+        input("     ** Press Enter to take the reading.")
+        self.low = int(self.data())
         print("Reading taken")
 
     #----------Max----------
         print("Please hold your hand at your comfortable upper limit")
-        input("     ** Enter any key to take the reading.")
-        self.high = self.data()
+        input("     ** Press Enter to take the reading.")
+        self.high = int(self.data())
         print("Reading taken")
 
 
-    #----------BothNone----------
-        print("Please remove both of your hands from the sensor")
-        input("     ** Enter any key to take the reading.")
-        self.max = self.data()
+    #----------None----------
+        print("Please remove both of your hands from near the sensor")
+        input("     ** Press Enter to take the reading.")
+        self.max = int(self.data())
         print("Reading taken")
 
 
     #----------Check and Re-Cal----------
         if (abs(self.max - self.high) < calThresh):
-            reCal()
-            calibrate()
+            self.reCal()
+            self.calibrate()
             return
 
 
     #----------Diff and Print----------
         self.calDiff = self.high-self.low
         print("Lower, Upper, Max, Diff")
-        print(self.low, self.high, self.max)#, self.calDiff)
+        print(self.low, self.high, self.max, self.calDiff)
 
 
         print("Calibration complete.")
-        input("     ** Enter any key to continue.")
+        input("     ** Press Enter to continue.")
 
 
 
