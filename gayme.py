@@ -99,7 +99,7 @@ if __name__ == "__main__":
         update(tock)
         tock += 1
 
-        sonarH = sonar.data()
+        sonarH = model.sonar.data()
         print(sonarH)
         # if (arduinoSerialData.inWaiting()>0):
         #         myData = arduinoSerialData.readline()

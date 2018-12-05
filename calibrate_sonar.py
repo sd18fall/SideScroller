@@ -12,14 +12,15 @@ class SonarController():
         temp = str(input("Arduino Port Number:"))
         if temp == "testing":
             self.port = "com22"
-            arduinoSerialData = serial.Serial(self.port, 9600)
+            self.arduinoSerialData = serial.Serial(self.port, 9600)
             return
         self.port = "com"+temp
-        arduinoSerialData = serial.Serial(self.port, 9600)   # Initialize arduino for sonar
+        self.arduinoSerialData = serial.Serial(self.port, 9600)   # Initialize arduino for sonar
         self.calibrate()   #sets self.min and self.max
 
     def data(self):
-        return arduinoSerialData.readline()
+        raw = self.arduinoSerialData.readline()
+        # b'0.00\r\n' b'6344.00\r\n' b'7928.00\r\n'
 
 #--------------------------- Calibration Function -----------------------------
 
@@ -48,16 +49,16 @@ class SonarController():
 
 
     #----------Check and Re-Cal----------
-        if (abs(max-high) < calThresh):
-            reCal()
-            calibrate()
-            return
+        # if (abs(self.max - self.high) < calThresh):
+        #     reCal()
+        #     calibrate()
+        #     return
 
 
     #----------Diff and Print----------
-        self.calDiff = self.high-self.low
+        # self.calDiff = self.high-self.low
         print("Lower, Upper, Max, Diff")
-        print(self.low, self.high, self.max, self.calDiff)
+        print(self.low, self.high, self.max)#, self.calDiff)
 
 
         print("Calibration complete.")
