@@ -26,7 +26,7 @@ class SonarController():
     def data(self):
         raw = self.arduinoSerialData.readline()
         data = raw.decode().strip('\r\n')
-        scaleData = (data-self.low)*self.rangeRatio + minJumpPower
+        scaleData = (int(data)-self.low)*self.rangeRatio + minJumpPower
         return scaleData
 
     def reset(self):
@@ -42,26 +42,29 @@ class SonarController():
     #----------Min----------
         print("Please hold your hand at your comfortable lower limit")
         input("     ** Press Enter to take the reading.")
-        self.low = int(self.data())
+        #self.low = int(self.data())
+        self.low = 200
         print("Reading taken")
 
     #----------Max----------
         print("Please hold your hand at your comfortable upper limit")
         input("     ** Press Enter to take the reading.")
-        self.high = int(self.data())
+        #self.high = int(self.data())
+        self.high = 300
         print("Reading taken")
 
     #----------None----------
         print("Please remove both of your hands from near the sensor")
         input("     ** Press Enter to take the reading.")
-        self.noHand = int(self.data())
+        #self.noHand = int(self.data())
+        self.noHand = 10000
         print("Reading taken")
 
     #----------Check and Re-Cal----------
-        if (abs(self.noHand - self.high) < calThresh):
-            self.reCal()
-            self.calibrate()
-            return
+        #if (abs(self.noHand - self.high) < calThresh):
+        #    self.reCal()
+        #    self.calibrate()
+        #    return
 
     #----------Print----------
         print("Lower, Upper, Max")

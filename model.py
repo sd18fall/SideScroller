@@ -1,5 +1,4 @@
 '''
-
 Model for SideScroller Game
 
 '''
@@ -26,18 +25,20 @@ class Model:
         self.endGame = False
         self.background = []
         self.sonar = SonarController()
-        # self.sonar = randomController()    # for testing purposes, reads random data
+        self.sonar = randomController()    # for testing purposes, reads random data
 
-    def add_block(self,num_block, screen, end_block = False,  screenx = 800, screeny = 500):
+    def add_block(self,num_block, screen, end_block = False, first_block = False,  screenx = 800, screeny = 500):
         """Add a randomly generated set of blocks anywhere onscreen"""
         counter = 0
+        if first_block == True:
+            self.blocks.append(Block(100, 200))
         if end_block == True:
             for block in self.blocks:
                 if block.x > 650:
                     counter +=1
             if counter < 1:
                 self.blocks.append(Block((800), random.randint(0,screeny)))
-        if end_block == False:
+        if end_block == False and first_block == False:
             for i in range(num_block):
                     self.blocks.append(Block(800/num_block*i,random.randint(0,screeny)))
 
@@ -54,7 +55,7 @@ class Model:
                 self.enemies.append(Enemy((800), random.randint(0,screeny)))
         if endemy == False:
             for i in range(num_enemy):
-                    self.enemies.append(Enemy(random.randint(0,screenx),random.randint(0,screeny)))
+                    self.enemies.append(Enemy(random.randint(400,screenx),random.randint(0,screeny)))
 
         for i in self.enemies:
             i.appear(screen)
@@ -78,13 +79,19 @@ class Model:
     def update(self, tock, screen, increment):
         sonarH = self.sonar.data()
         self.player.update(self.blocks, self.enemies, tock, increment, sonarH)
-        for block in self.blocks:
+        for i, block in enumerate(self.blocks):
+            if block.x < -150:
+                    del self.blocks[i]
+
             block.update()
-        for enemy in self.enemies:
+        for i, enemy in enumerate(self.enemies):
+            if enemy.x < -50:
+                    del self.enemies[i]
             enemy.update(self.blocks, increment)
             # enemy.shoot(screen,self.player,2)
         for back in self.background:
             back.update()
+
         self.shouldEnd()
 
     def appear(self, screen):
@@ -332,7 +339,7 @@ class Background():
             self.x = x
             self.y = y
         def appear(self, screen):
-            showSprite = pygame.image.load('kitchen.png').convert_alpha()
+            showSprite = pygame.image.load('kitchen-min.png').convert_alpha()
             screen.blit(showSprite, (self.x, self.y))
         def update(self, increment = 3):
             self.x -= increment
