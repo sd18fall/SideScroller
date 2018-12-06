@@ -20,11 +20,10 @@ import pdb
 #                                  Setup
 # ==============================================================================
 
-tock = 0        # timer by number of cycles
-jumpDuration = 16 # must be even
-increment = 8       # number of pixels to step when moving
-screenx = 800    # game window width
-screeny = 500    # game window height
+tock = 0          # timer by number of cycles
+increment = 8     # number of pixels to step when moving
+screenx = 800     # game window width
+screeny = 500     # game window height
 size = (screenx,screeny)
 
 pygame.init()
@@ -52,6 +51,10 @@ def update(tock):
     model.add_background(GameWindow)
     view.draw(screenx)
     time.sleep(.001)
+    if model.endGame:
+        time.sleep(5)
+        die()
+
 
 def die():
     """Ends the game by False-ing the while loop variable"""
@@ -65,7 +68,6 @@ def die():
 # ==============================================================================
 #                                  Main
 # ==============================================================================
-
 model = Model(size)
 #model.sonar.reset()
 view = View(model, GameWindow)
@@ -75,10 +77,8 @@ model.add_enemy(5, GameWindow)
 model.add_block(1, GameWindow, True)
 #model.floorTest()
 
-while not alive:
-
+while alive:
     update(tock)
-
     tock += 1
 
 
@@ -86,25 +86,20 @@ while not alive:
 # ==============================================================================
 #                                 Testing
 # ==============================================================================
-if __name__ == "__main__":
+if __name__ != "__main__":
 
     pygame.init()
 
 
-    #model.player.vx = 3*increment
+    #model.player.vx = increment
     update(tock)
     tock += 1
-    model.player.jump(tock)
+    # model.player.jump(tock)
 
     for tock in range(1, 1000):
         update(tock)
         tock += 1
 
-        sonarH = model.sonar.data()
-        #print(sonarH)
-        # if (arduinoSerialData.inWaiting()>0):
-        #         myData = arduinoSerialData.readline()
-        #         print( myData)
 
 
     print('that testing sure did happen')

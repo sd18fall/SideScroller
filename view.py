@@ -10,14 +10,11 @@ class View():
 
     def draw(self, screenx):
         """ Draw the current game state to the screen """
-        # draw a gradient background
-
-#        if self.model.endgame == False:
+#        if self.model.endGame == False:
 #            for i in range(screenx):
 #                pygame.draw.line(self.screen,(i/8+40,i/20+20,i/7+70),(i,0),(i,700))
-
         self.model.appear(self.screen)
-        if self.model.endgame == True:
+        if self.model.endGame:
             for i in range(screenx):
                     pygame.draw.line(self.screen,(i/8+40,0,0),(i,0),(i,700))
         pygame.display.update()
