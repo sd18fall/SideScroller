@@ -1,5 +1,5 @@
-"""This is a game made by team [Team_Name], made up of Anya and Liz.
-The game itself is a side-scroller, with intended inputs of IR sensors."""
+'''This is a game made by team [Team_Name], made up of Anya and Liz.
+The game itself is a side-scroller, with intended inputs of IR sensors.'''
 
 # ==============================================================================
 #                                  Libraries
@@ -43,7 +43,7 @@ alive = True
 # ==============================================================================
 
 def update(tock):
-    """Calls all the update and draw functions for one frame step"""
+    '''Calls all the update and draw functions for one frame step'''
     counter = 0
     model.update(tock, GameWindow, increment)
     model.add_block(1,GameWindow, True)
@@ -57,7 +57,7 @@ def update(tock):
 
 
 def die():
-    """Ends the game by False-ing the while loop variable"""
+    '''Ends the game by False-ing the while loop variable'''
     print("You died! Play again.")
     pygame.quit()
     global alive
@@ -69,7 +69,7 @@ def die():
 #                                  Main
 # ==============================================================================
 model = Model(size)
-model.sonar.reset()
+#model.sonar.reset()
 view = View(model, GameWindow)
 model.add_background(GameWindow, True)
 model.add_block(10, GameWindow, False, True)
@@ -97,9 +97,9 @@ if __name__ != "__main__":
     tock += 1
     # model.player.jump(tock)
 
-    for tock in range(1, 1000):
-        update(tock)
-        tock += 1
+    #for tock in range(1, 1000):
+    #    update(tock)
+    #    tock += 1
 
 
 
