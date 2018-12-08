@@ -69,7 +69,7 @@ def die():
 #                                  Main
 # ==============================================================================
 model = Model(size)
-#model.sonar.reset()
+model.sonar.reset()
 view = View(model, GameWindow)
 model.add_background(GameWindow, True)
 model.add_block(10, GameWindow, False, True)

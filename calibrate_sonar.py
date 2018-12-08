@@ -17,6 +17,7 @@ class SonarController():
     """
     def __init__(self):
         self.port = "com22"
+        # Try, and if fail then self.reset()
         self.arduinoSerialData = serial.Serial(self.port, 9600)   # Initialize arduino for sonar
         self.low = 0
         self.high = 100
@@ -30,7 +31,7 @@ class SonarController():
         return scaleData
 
     def reset(self):
-        self.port = "com" + str(input("Arduino Port (just the number):"))
+        self.port = str(input("Arduino Connection Port (i.e. com22 or ttyACM0):"))
         print("\nBegin calibration...")
         self.calibrate()   #resets low, high, noHand, rangeRatio
 
