@@ -1,23 +1,24 @@
 
-/* Code running the Sonar Sensors for Brad the Bread
-* By Liz and Anya, 2018
-* Requires an Arduino Uno and a Sonar sensor
+/* Code running the Sonar Sensors for Brad the Bread game
+*    By Liz and Anya, 2018
+*    Requires a sonar sensor
 */
 
 
 //--------------------------- Variable Setup -----------------------------------
-
 //Setup
 const int trigPin = 3;
 const int echoPin = 2;
-int trigState = LOW;
-//Take and print Reading
+
+//Cycle trigger with non-delay timers
+unsigned long curMillis;
+unsigned long prevMillis = 0;
+bool trigState = LOW;
+const int offTime = 1;
+const int onTime = 10;
+
+//Reading variable
 int duration;
-int interval = 1; // interval in milliseconds at which trigPin turns on
-int interval2 = 1000; //time in milliseconds at which the distance is printed in serial monitors
-int printState = LOW; //whether or not to print distance
-unsigned long currentMillis;
-unsigned long previousMillis = 0; //microsecond at which the pin was last writen
 
 //--------------------------- Main Setup and Loop ------------------------------
 void setup() {
@@ -27,55 +28,31 @@ void setup() {
   pinMode(echoPin, INPUT);
 }
 
-
+void loop() {
+    curMillis = millis();
+    duration = readSonar();
+    Seial.println(duration);
+}
 
 //--------------------------- Reading functions --------------------------------
 
+int readSonar() {
+    // Clears the trigPin for 1ms, then sets the trigPin on HIGH state for 10 ms
+      digitalWrite(trigPin, trigState);
+      if (curMillis - prevMillis && trigState == LOW  > offTime)
+      {
+        trigState = HIGH;
+        digitalWrite(trigPin, trigState);
+        prevMillis = curMillis;
+      }
+      else if (curMillis - prevMillis && trigState == HIGH  > onTime)
+      {
+        trigState = LOW;
+        digitalWrite(trigPin, trigState);
+        prevMillis = curMillis;
+      }
 
-
-
-void loop() {
-    // Clears the sonarTrig, then sets the sonarTrig on HIGH state for 10 micro seconds
-  currentMillis = millis(); //time in milliseconds from which the code was started
-
-  if (currentMillis-previousMillis >= interval) { //check "blink without delay" code
-		previousMillis = currentMillis;
-		if (trigState == LOW){
-			(trigState = HIGH);
-		}
-		else {
-			(trigState = LOW);
-		}
-	}
-	// printing if statement
-	if (currentMillis-previousMillis >= interval2) { //check "blink without delay" code
-		previousMillis = currentMillis;
-		if (printState == LOW){
-			(printState = HIGH);
-		}
-		else {
-			(printState = LOW);
-		}
-	}
-	digitalWrite(trigPin,trigState);
-	int duration, distance; //variables
-	duration = pulseIn(echoPin,HIGH);
-
-	if (printState = HIGH and duration != 0){
-	  Serial.println(duration);
     // Reads the echoPin, returns the sound wave travel time in microseconds
-    //return duration;
-
+    duration = pulseIn(echoPin, HIGH);
+    return duration;
 }
-}
-
-
-/*void pln(int var) {Serial.println(var);}
-void send() {
-    duration = readSonar();
-    pln(duration);
-}
-
-void loop() {
-    send()
-}*/
