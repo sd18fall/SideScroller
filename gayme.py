@@ -70,6 +70,7 @@ def die():
 # ==============================================================================
 model = Model(size)
 #model.sonar.reset()
+
 view = View(model, GameWindow)
 model.add_background(GameWindow, True)
 model.add_block(10, GameWindow, False, True)
@@ -81,6 +82,7 @@ model.add_block(1, GameWindow, True)
 while alive:
     update(tock)
     tock += 1
+    
 
 
 
