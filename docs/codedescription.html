@@ -23,11 +23,10 @@
 					<!-- Nav -->
 					<nav id="nav">
 						<ul>
-							<li class="current"><a href="index.html">Home</a></li>
 							<li class="current"><a href="team.html">Team</a></li>
 							<li class="current"><a href="motivation.html">Story of Our Code</a></li>
 							<li class="current"><a href="finalproduct.html">Final Product</a></li>
-
+							<li class="current"><a href="codedescription.html">Code Explanation</a></li>
 
 					</nav>
 
@@ -41,42 +40,18 @@
 							<article class="box post">
 								<a href="#" class="image featured"><img src="images/pic01.jpg" alt="" /></a>
 								<header>
-									<h2>Story of Our Code</h2>
-									<p>Follow our process of getting the game to where it is. </p>
-								</header>
-								<h3>Chapter 1: Getting Started</h3>
-								<p>
-									As soon as we started this project, we knew we wanted to have a game with some sort of interesting input. We played around with the idea of using camera tracking to do this, but thought that using distance sensors could have really cool potential.
+									<h2>How the Code Works</h2>
+									<p> Our program works by implementing the Model View Controller class structure.</p>
 
-		<p>
-								Next we needed to decide on the game we would make. We threw around different ideas of games that were popular, but finally decided that a sidescroller could have the most interesting interaction with our input method.
-		</p>
-		<h4>Chapter 1.5: Planning and Plotting</h4>
-		<p> We decided the best way to start was just to make a base game, without the input. We tried to make the game as modular as possible, so when we did add the new controller in we wouldn't run into too many obstacles.</p>
-		<h3>Chapter 2: The Code Begins</h3>
-		<p>
-			We began by making a simple base game, where you played as a green cube dodging other cubes. The character could move forward and jump, while the rest of the environment stayed in place. While this worked for simple testing, this was not the final product we wanted for the game. We decided the next steps would be to finish the base game how we wanted it to appear.
-</p>
-		<img src="orig_game.PNG">
-		<h3>Chapter 3: Brad is Born</h3>
-		<p>
-			After getting the really basic game working, we added scrolling and random generation of enemies and platforms, but realized we needed a character and a story to make the game interesting. We made random shapes in Illustrator, and accidentally made something that looked like angry butter, which we thought would be a fun enemy. We then realized what better protagonist for our game than Brad the Bread!
-</p>
+									<h3> Model </h3>
+									<p> The model controls most of the "meat" for our game. It has classes for our player, enemies, platforms, and background. It makes sure all pieces of the game are moving and updating appropriately.
+										<h3> View </h3>
+										<p> The view displays all the visuals for our model. It also displays the start and end screens when appropriate.</p>
+										<h3> Controller</h3>
+										<p> The controller is arguably the most unique part of our game. We use an ultrasonic sensor to control the jump height for our chracter. We have the game begin by calibrating this sensor, which works by taking a reading of the player's hand close, far, and off of the sensor.</p>
 
-<img src="TOAST.png">
-<h3>Chapter 4: Brad Jumps!</h3>
-<p>
-	Once we had a story and a base game, we added in our sensor input. We decided that with the time we had left, and the nature of the game, it would be best to use only one input. We added the ability to control the height that Brad jumps using an ultrasonic sensor. The player can hold their hand a small distance from the sensor to have Brad jump a small amount, and further away for a bigger jump.
-</p>
-<img src="toast_jump.png">
-<h3>Chapter 5: Bumps in the Road</h3>
-<p>
-	We ran into quite a few obstacles while creating Brad. Although we met around 6 hours every week on top of going to class, the game didn't feel like it was progressing as quickly as we had hoped. As we neared the end of our project, we decided to spend a weekend getting as much work done as possible. We went into the weekend with our very basic game of having a cube that can jump and came out with Brad, randomly generated platforms, a scrolling screen, and new enemies!
-</p>
-<h3>Chapter 6: Moral of the Story</h3>
-<p>
-We learned that when building a game you should work on finding a direction for it as soon as possible. We were a little lost in the beginning of the project when it came to the direction of our project, but we still kept moving forward even when that was the case.
-</p>
+										<h2> How They Work Together </h2>
+										<p> Below you can see the diagram of our game's structure.
 					</article>
 
 					</div>

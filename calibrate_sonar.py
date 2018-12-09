@@ -17,7 +17,7 @@ class SonarController():
         self.high = 300
         self.noHand = 1000
         self.calThresh = 10
-        self.prevData = 220
+        self.prevData = 1.2
 
         self.minPower = minPower
         self.maxPower = maxPower
@@ -29,7 +29,7 @@ class SonarController():
     def data(self):
         print('A', end="\n")
         if (self.arduinoSerialData.inWaiting()>0):
-            raw = arduinoSerialData.readline()
+            raw = self.arduinoSerialData.readline()
         else:
             print('No Reading Flag---')
             return self.prevData
@@ -54,8 +54,9 @@ class SonarController():
 
     def rawData(self):
         if (self.arduinoSerialData.inWaiting()>0):
-            raw = arduinoSerialData.readline()
+            raw = self.arduinoSerialData.readline()
         else:
+            print('No Reading Flag---')
             return self.prevData
         # raw = self.arduinoSerialData.readline()
 
