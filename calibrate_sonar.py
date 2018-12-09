@@ -2,6 +2,7 @@
     Assumes arduino is coded to constantly spit out sonar readings'''
 
 import serial
+import pdb
 
 # ------------------------------------------------------------------------------
 #                                Main Class
@@ -16,32 +17,53 @@ class SonarController():
         self.high = 300
         self.noHand = 1000
         self.calThresh = 10
+        self.prevData = 220
+
         self.minPower = minPower
         self.maxPower = maxPower
         self.rangeRatio = (maxPower-minPower)/(self.high-self.low)
 
-        self.port = "com23"
+        self.port = "com22"
         self.arduinoConnect()
 
     def data(self):
-        raw = self.arduinoSerialData.readline()
+        print('A', end="\n")
+        if (self.arduinoSerialData.inWaiting()>0):
+            raw = arduinoSerialData.readline()
+        else:
+            print('No Reading Flag---')
+            return self.prevData
+        # raw = self.arduinoSerialData.readline()
+
+        print('B', end="\n")
         data = raw.decode().strip('\r\n')
-        print(data)
+        print('C', end="\n")
         if '-' in data or data is None:
+            print('None', end="\n")
             return None
         data = int(data.split('.')[0])
+        print('D', end="\n")
         if data > (self.high + self.calThresh) or data < (self.low - self.calThresh):
+            print('NoneTwo', end="\n")
             return None
         scaleData = (data-self.low)*self.rangeRatio + self.minPower
+        print('E', end="\n")
+        print('Data', scaleData, end="\n")
+        self.prevData = scaleData
         return scaleData
 
     def rawData(self):
-        raw = self.arduinoSerialData.readline()
+        if (self.arduinoSerialData.inWaiting()>0):
+            raw = arduinoSerialData.readline()
+        else:
+            return self.prevData
+        # raw = self.arduinoSerialData.readline()
+
         data = raw.decode().strip('\r\n')
-        print(data)
         if data is None:
             return None
         data = int(data.split('.')[0])
+        self.prevData = data
         return data
 
     def arduinoConnect(self):
@@ -53,6 +75,9 @@ class SonarController():
             return
 
     def reset(self):
+        if hasattr(self, 'arduinoSerialData'):
+            print('yep')
+            self.arduinoSerialData.close()
         self.port = str(input("Arduino Connection Port (i.e. com22 or /dev/ttyACM0):"))
         self.arduinoConnect()
         print("\nBegin calibration...")

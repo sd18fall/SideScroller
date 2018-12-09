@@ -45,7 +45,9 @@ alive = True
 def update(tock):
     '''Calls all the update and draw functions for one frame step'''
     counter = 0
+    print('***ba-', end="\n")
     model.update(tock, GameWindow, increment)
+    print('***bam', end="\n")
     model.add_block(1,GameWindow, True)
     model.add_enemy(1,GameWindow, True)
     model.add_background(GameWindow)
@@ -69,20 +71,18 @@ def die():
 #                                  Main
 # ==============================================================================
 model = Model(size)
-#model.sonar.reset()
-
 view = View(model, GameWindow)
 model.add_background(GameWindow, True)
 model.add_block(10, GameWindow, False, True)
 model.add_block(10, GameWindow)
 model.add_enemy(5, GameWindow)
 model.add_block(1, GameWindow, True)
-#model.floorTest()
 
 while alive:
     update(tock)
+    pygame.event.pump()
     tock += 1
-    
+
 
 
 
@@ -91,17 +91,21 @@ while alive:
 # ==============================================================================
 if __name__ != "__main__":
 
-    pygame.init()
+    # pygame.init()
 
+    for i in range(20):
+        update(tock)
+        pygame.event.pump()
+        tock += 1
 
-    #model.player.vx = increment
-    update(tock)
-    tock += 1
-    # model.player.jump(tock)
-
-    #for tock in range(1, 1000):
-    #    update(tock)
-    #    tock += 1
+    # #model.player.vx = increment
+    # update(tock)
+    # tock += 1
+    # # model.player.jump(tock)
+    #
+    # #for tock in range(1, 1000):
+    # #    update(tock)
+    # #    tock += 1
 
 
 

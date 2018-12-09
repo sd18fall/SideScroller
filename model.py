@@ -75,12 +75,13 @@ class Model:
             back.appear(screen)
 
     def update(self, tock, screen, increment):
+        print('**ping-', end="\n")
         sonarH = self.sonar.data()
+        print('**pong', end="\n")
         self.player.update(self.blocks, self.enemies, tock, increment, sonarH)
         for i, block in enumerate(self.blocks):
             if block.x < -150:
                     del self.blocks[i]
-
             block.update()
         for i, enemy in enumerate(self.enemies):
             if enemy.x < -50:

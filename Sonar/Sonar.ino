@@ -16,6 +16,7 @@ int duration;
 int interval = 1; // interval in milliseconds at which trigPin turns on
 int interval2 = 1000; //time in milliseconds at which the distance is printed in serial monitors
 int printState = LOW; //whether or not to print distance
+unsigned long currentMillis;
 unsigned long previousMillis = 0; //microsecond at which the pin was last writen
 
 //--------------------------- Main Setup and Loop ------------------------------
@@ -35,7 +36,7 @@ void setup() {
 
 void loop() {
     // Clears the sonarTrig, then sets the sonarTrig on HIGH state for 10 micro seconds
-    unsigned long currentMillis = millis(); //time in milliseconds from which the code was started
+    currentMillis = millis(); //time in milliseconds from which the code was started
 	if (currentMillis-previousMillis >= interval) { //check "blink without delay" code
 		previousMillis = currentMillis;
 		if (trigState == LOW){
@@ -77,4 +78,3 @@ void send() {
 void loop() {
     send()
 }*/
-

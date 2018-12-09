@@ -40,30 +40,40 @@
 							<article class="box post">
 				<h1><a id="Brad_The_Bread_0"></a>Brad The Bread</h1>
 				<h2><a id="Brought_to_you_by_Team_Name_1"></a>Brought to you by [Team_Name]</h2>
-				<h3><a id="How_Bread_the_Bread_works_3"></a>How Bread the Bread works</h3>
+				<h3><a id="How_Brad_the_Bread_works_3"></a>How Brad the Bread works</h3>
 				<p>The main program, <a href="http://gayme.py">gayme.py</a>, uses python3 and pygame to generate a simple game world.<br>
-				The world includes your player, enemy characters, floors and blocks.<br>
-				Navigate the world while dodging enemies and blockades to see how far you can go!</p>
+				The world includes Brad the Bread, evil butter, and "plateforms". Navigate the world while dodging enemies and jumping on platforms to see how far you can go!</p>
 				<h3><a id="Prerequisites_8"></a>Prerequisites</h3>
-				<p>Our game requires python3, pygame, and pySerial to run. We will go through the installation of these three libraries.</p>
+				<p>Our game requires python3, pygame, and pySerial to run. You will also need to install the Arduino IDE if you do not already have it. We will go through the installation of these three libraries.</p>
 				<p>Download Anaconda here: <a href="http://docs.continuum.io/anaconda/install/">http://docs.continuum.io/anaconda/install/</a></p>
 				<p>When asked to prepend the path to anaconda to your .bashrc file, respond yes.</p>
 				<p>Next download pygame using<br>
 				‘’‘pip install pygame’’’</p>
 				<p>Last, install pySerial, which allows the script to read the Serial monitor of an Arduino using<br>
 				‘’‘pip install pyserial’’’</p>
+				<p> Follow the instruction here to install <a href = "https://www.arduino.cc/en/Main/Software ">Arduino IDE.</a></p>
+				<h3><a id="hardware"></a>Hardware</h3>
+				<p> You will need: </p>
+				<li>One ultrasonic sensor</li>
+				<li>One Arduino Uno</li>
+				<li>4 Male-to-female jumper cables</li>
+				<li>1 A-male to B-male cable for the arduino </li>
+				<p> Set up the circuit to look like so:</p>
+
+				<p> With ground going to ground, VCC going to 5V, trig going to digital Pin 3, and echo going to digital pin 2</p>
+
 				<h3><a id="Installation_21"></a>Installation</h3>
-				<p>Once you have downloaded the prerequisites you are ready to install the game.</p>
+				<p>Once you have downloaded the prerequisites and have your hardware setup, you are ready to install the game.</p>
 				<p>Do so by running<br>
 				‘’‘git clone <a href="https://github.com/sd18fall/final-project-team_name">https://github.com/sd18fall/final-project-team_name</a>‘’’</p>
+				<p>Upload Sonar.ino to your arduino through <a href = "https://www.arduino.cc/en/Main/Software ">Arduino IDE.</a></p>
 				<p>Open your computer’s terminal and navigate to the folder.</p>
 				<p>Run ‘’‘python3 <a href="http://gayme.py">gayme.py</a>‘’’</p>
+				<p>If requested, type in the com port of the Arduino.</p>
 				<h3><a id="Where_its_headed_31"></a>Where it’s headed</h3>
-				<p>The game is still in progress, but very soon will have the ability to control Brad using an ultrasonic sensor. The sensor will be used to change the jump height, with possible future sensors being added.</p>
+				<p>We do not currently plan on continuing work on Brad the Bread, but if we did we would likely work on streamlining the graphics, maybe the game work faster, adding port selection, and adding a second ultrasonic sensor.</p>
 				<h3><a id="Why_were_doing_this_34"></a>Why we’re doing this</h3>
-				<p>Mostly, we’re here to learn, with a focus on using classes, premade libraries,<br>
-				and planning a project. Inside of all that, we’re looking to make a usable<br>
-				and fun game. We hope you enjoy!</p>
+				<p>Mostly, we’re here to learn, with a focus on using classes, premade libraries, and planning a project. Inside of all that, we’re looking to make a usable and fun game. We hope you enjoy!</p>
 				<h3><a id="Authors_39"></a>Authors</h3>
 				<p>Anya Jensen - <a href="https://github.com/AnyaCakes">AnyaCakes</a><br>
 				Liz Leadley - <a href="https://github.com/LizLeadley">LizLeadley</a></p>

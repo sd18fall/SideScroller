@@ -1,5 +1,6 @@
 import pygame
 
+
 class View():
     def __init__(self, model, screen):
         ''' Initialize the view with a reference to the model and the
@@ -13,6 +14,7 @@ class View():
 #        if self.model.endGame == False:
 #            for i in range(screenx):
 #                pygame.draw.line(self.screen,(i/8+40,i/20+20,i/7+70),(i,0),(i,700))
+
         self.model.appear(self.screen)
         if self.model.endGame:
             for i in range(screenx):
