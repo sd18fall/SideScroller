@@ -14,8 +14,8 @@ const int echoPin = 2;
 unsigned long curMillis;
 unsigned long prevMillis = 0;
 bool trigState = LOW;
-const int offTime = 1;
-const int onTime = 10;
+const int offTime = .000001;
+const int onTime = .000001;
 
 //Reading variable
 int duration;
@@ -28,24 +28,25 @@ void setup() {
   pinMode(echoPin, INPUT);
 }
 
-void loop() {
-    curMillis = millis();
+/*void loop() {
+    
     duration = readSonar();
-    Seial.println(duration);
-}
+    
+}*/
 
 //--------------------------- Reading functions --------------------------------
 
-int readSonar() {
+void loop() {
+    curMillis = micros();
     // Clears the trigPin for 1ms, then sets the trigPin on HIGH state for 10 ms
       digitalWrite(trigPin, trigState);
-      if (curMillis - prevMillis && trigState == LOW  > offTime)
+      if (curMillis - prevMillis  > offTime && trigState == LOW )
       {
         trigState = HIGH;
         digitalWrite(trigPin, trigState);
         prevMillis = curMillis;
       }
-      else if (curMillis - prevMillis && trigState == HIGH  > onTime)
+      else if (curMillis - prevMillis  > onTime && trigState == HIGH )
       {
         trigState = LOW;
         digitalWrite(trigPin, trigState);
@@ -54,5 +55,7 @@ int readSonar() {
 
     // Reads the echoPin, returns the sound wave travel time in microseconds
     duration = pulseIn(echoPin, HIGH);
-    return duration;
+    if (duration != 0){
+    Serial.println(duration);
+    }
 }

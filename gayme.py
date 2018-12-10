@@ -25,12 +25,16 @@ increment = 8     # number of pixels to step when moving
 screenx = 800     # game window width
 screeny = 500     # game window height
 size = (screenx,screeny)
+alive = False
 
 pygame.init()
 GameWindow = pygame.display.set_mode(size)
 
-alive = True
 
+playlist = list()
+playlist.append ( "daily_dosage-rob_belfiore.mp3" )
+pygame.mixer.music.load ( playlist.pop() )
+pygame.mixer.music.play(-1)
 
 # ==============================================================================
 #                                  Classes
@@ -41,18 +45,37 @@ alive = True
 # ==============================================================================
 #                                 Functions
 # ==============================================================================
+def title():
+    '''Show the title screen'''
+    print (alive)
+    model.drawTitle(GameWindow)
+    model.checkSwipe()
+    pygame.display.update()
+    if model.start == True:
+        start()
+
+
+def start():
+    '''Initializes all the beginning pieces of the game'''
+    global alive
+    alive = True
+    model.add_background(GameWindow, True)
+    model.add_block(10, GameWindow, False, True)
+    model.add_block(10, GameWindow)
+    model.add_enemy(5, GameWindow)
+    model.add_block(1, GameWindow, True)
 
 def update(tock):
     '''Calls all the update and draw functions for one frame step'''
     counter = 0
-    print('***ba-', end="\n")
+    #print('***ba-', end="\n")
     model.update(tock, GameWindow, increment)
-    print('***bam', end="\n")
+    #print('***bam', end="\n")
     model.add_block(1,GameWindow, True)
     model.add_enemy(1,GameWindow, True)
     model.add_background(GameWindow)
     view.draw(screenx)
-    time.sleep(.001)
+    time.sleep(.01)
     if model.endGame:
         time.sleep(5)
         die()
@@ -70,13 +93,12 @@ def die():
 # ==============================================================================
 #                                  Main
 # ==============================================================================
+GameWindow = pygame.display.set_mode(size)
 model = Model(size)
 view = View(model, GameWindow)
-model.add_background(GameWindow, True)
-model.add_block(10, GameWindow, False, True)
-model.add_block(10, GameWindow)
-model.add_enemy(5, GameWindow)
-model.add_block(1, GameWindow, True)
+#model.sonar.reset()
+while alive == False:
+    title()
 
 while alive:
     update(tock)

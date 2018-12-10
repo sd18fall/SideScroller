@@ -1,5 +1,6 @@
 '''
 Model for SideScroller Game
+Contains: Model, Character, Player, Enemy, Blocks, and Background classes
 
 '''
 
@@ -24,6 +25,7 @@ class Model:
         self.enemies = []       # list of Enemy objects
         self.endGame = False
         self.background = []
+        self.start=False
         self.sonar = SonarController(1, 4) # Min and max multiplier given to player jump height and duration
         # self.sonar = randomController()    # for testing purposes, reports random data
 
@@ -37,11 +39,11 @@ class Model:
                 if block.x > 650:
                     counter +=1
             if counter < 1:
-                self.blocks.append(Block((800), random.randint(0,screeny)))
-                self.blocks.append(Block((800), random.randint(0,screeny)))
+                self.blocks.append(Block((800), random.randint(100,screeny-100)))
+                self.blocks.append(Block((800), random.randint(100,screeny-100)))
         if end_block == False and first_block == False:
             for i in range(num_block):
-                    self.blocks.append(Block(800/num_block*i,random.randint(0,screeny)))
+                    self.blocks.append(Block(800/num_block*i,random.randint(100,screeny-100)))
 
         for i in self.blocks:
             i.appear(screen)
@@ -74,10 +76,20 @@ class Model:
         for back in self.background:
             back.appear(screen)
 
+    def drawTitle(self, screen):
+        showSprite = pygame.image.load('title.png').convert_alpha()
+        screen.blit(showSprite, (0, 0))
+
+    def checkSwipe(self):
+        if self.sonar.data() != None:
+            self.start = True
+            print (1)
+
+
     def update(self, tock, screen, increment):
-        print('**ping-', end="\n")
+        #print('**ping-', end="\n")
         sonarH = self.sonar.data()
-        print('**pong', end="\n")
+        #print('**pong', end="\n")
         self.player.update(self.blocks, self.enemies, tock, increment, sonarH)
         for i, block in enumerate(self.blocks):
             if block.x < -150:
@@ -87,7 +99,8 @@ class Model:
             if enemy.x < -50:
                     del self.enemies[i]
             enemy.update(self.blocks, increment)
-            # enemy.shoot(screen,self.player,2)
+            enemy.shoot(screen,self.player,1)
+
         for i, back in enumerate(self.background):
             if back.x < -800:
                     del self.background[i]
@@ -209,7 +222,10 @@ class Enemy(Character):
             self.projectile.aimed_shot(player, self)
 
 class Projectile(Enemy):
-    '''Class for projectiles that enemies shoot'''
+    '''
+    Class for projectiles that enemies shoot
+
+    '''
     def appear(self, screen):
         pygame.draw.ellipse(screen, (255,0,0), self.rect())
 

@@ -14,8 +14,8 @@ class SonarController():
     '''
     def __init__(self, minPower = 1, maxPower = 4):
         self.low = 200
-        self.high = 300
-        self.noHand = 1000
+        self.high = 1500
+        self.noHand = 2400
         self.calThresh = 10
         self.prevData = 1.2
 
@@ -27,30 +27,32 @@ class SonarController():
         self.arduinoConnect()
 
     def data(self):
-        print('A', end="\n")
-        if (self.arduinoSerialData.inWaiting()>0):
+        try:
+            #print('A', end="\n")
             raw = self.arduinoSerialData.readline()
-        else:
-            print('No Reading Flag---')
-            return self.prevData
-        # raw = self.arduinoSerialData.readline()
 
-        print('B', end="\n")
-        data = raw.decode().strip('\r\n')
-        print('C', end="\n")
-        if '-' in data or data is None:
-            print('None', end="\n")
-            return None
-        data = int(data.split('.')[0])
-        print('D', end="\n")
-        if data > (self.high + self.calThresh) or data < (self.low - self.calThresh):
-            print('NoneTwo', end="\n")
-            return None
-        scaleData = (data-self.low)*self.rangeRatio + self.minPower
-        print('E', end="\n")
-        print('Data', scaleData, end="\n")
-        self.prevData = scaleData
-        return scaleData
+            #print(raw)
+
+            # raw = self.arduinoSerialData.readline()
+
+            #print('B', end="\n")
+            data = raw.decode().strip('\r\n')
+            #print('C', end="\n")
+            if '-' in data or data is None:
+            #    print('None', end="\n")
+                return None
+            data = int(data.split('.')[0])
+            #print('D', end="\n")
+            if data > (self.high + self.calThresh) or data < (self.low - self.calThresh):
+            #    print('NoneTwo', end="\n")
+                return None
+            scaleData = (data-self.low)*self.rangeRatio + self.minPower
+            #print('E', end="\n")
+            #print('Data', scaleData, end="\n")
+            self.prevData = scaleData
+            return scaleData
+        except:
+            pass
 
     def rawData(self):
         if (self.arduinoSerialData.inWaiting()>0):
@@ -69,7 +71,7 @@ class SonarController():
 
     def arduinoConnect(self):
         try:
-            self.arduinoSerialData = serial.Serial(self.port, 9600)   # Initialize arduino for sonar
+            self.arduinoSerialData = serial.Serial(self.port, 9600, timeout=.05)   # Initialize arduino for sonar
         except:
             print("Arduino not found. Reset commencing.")
             self.reset()
@@ -83,6 +85,25 @@ class SonarController():
         self.arduinoConnect()
         print("\nBegin calibration...")
         self.calibrate()
+
+
+
+
+    def reCal(self, calCount):
+        calCount += 1
+        #Variable instructions
+        if calCount <= 2:
+            print("Please ensure your hand is directly over the sensor so it still sees you.")
+        if calCount >= 1 and calCount <= 4:
+            print("Consider keeping your range smaller and lowering your upper limit.")
+        if calCount >= 3:
+            print("Calibration is struggling. Consider repositioning the sensors.")
+            print("     Try to ensure straight lines of hand movement, and reduce\
+                possible interferences within a wide code around the sensor.")
+
+        print("Please retry calibration.\n")
+        return calCount
+
 
 #--------------------------- Calibration Function -----------------------------
     def calibrate(self, calCount = 0):
@@ -117,32 +138,17 @@ class SonarController():
             calCount = self.reCal(calCount)
             self.calibrate(calCount)
             return
-
+        if (abs(self.low - self.high) == 0):
+            print("\nWe couldn't tell the difference between your lower and your upper height.")
+            calCount = self.reCal(calCount)
+            self.calibrate(calCount)
+            return
     #----------Print----------
         print("Lower, Upper, No Hand")
         print(self.low, self.high, self.noHand)
         self.rangeRatio = ((self.maxPower-self.minPower)/(self.high-self.low))
         print("Calibration complete.")
         return
-
-
-
-    def reCal(self):
-        calCount += 1
-        #Variable instructions
-        if calCount <= 2:
-            print("Please ensure your hand is directly over the sensor so it still sees you.")
-        if calCount >= 1 and calCount <= 4:
-            print("Consider keeping your range smaller and lowering your upper limit.")
-        if calCount >= 3:
-            print("Calibration is struggling. Consider repositioning the sensors.")
-            print("     Try to ensure straight lines of hand movement, and reduce\
-                possible interferences within a wide code around the sensor.")
-
-        print("Please retry calibration.\n")
-        return calCount
-
-
 
 
 # ------------------------------------------------------------------------------
