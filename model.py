@@ -78,7 +78,7 @@ class Model:
 
     def drawTitle(self, screen):
         showSprite = pygame.image.load('title.png').convert_alpha()
-        screen.blit(showSprite, (0, 0))
+        screen.blit(pygame.transform.scale(showSprite, (800, 500)), (0, 0))
 
     def checkSwipe(self):
         if self.sonar.data() != None:

@@ -42,5 +42,5 @@ and fun game. We hope you enjoy!
 Anya Jensen - [AnyaCakes](https://github.com/AnyaCakes)
 Liz Leadley - [LizLeadley](https://github.com/LizLeadley)
 
-###Attribution
+### Attribution
 Song: Daily Dosage by Rob Belfiore https://www.freesoundtrackmusic.com/

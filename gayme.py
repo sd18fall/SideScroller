@@ -87,6 +87,7 @@ def die():
     pygame.quit()
     global alive
     alive = False
+    #title()
 
 
 
