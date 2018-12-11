@@ -6,9 +6,16 @@ The main program, gayme.py, uses python3 and pygame to generate a simple game wo
 The world includes your player, enemy characters, floors and blocks.
 Navigate the world while dodging enemies and blockades to see how far you can go!
 
-### Prerequisites
-Our game requires python3, pygame, and pySerial to run. We will go through the installation of these three libraries.
+### Hardware Setup
+You will need:
+1 Arduino Uno, 1 Ultrasonic sensor, 4 male-to-female cables, and a USB to connect your Arduino to your laptop.
 
+Setup the circuit with ground going to ground, VCC going to 5V, trig going to digital Pin 3, and echo going to digital pin 2.
+
+### Prerequisites
+Our game requires python3, pygame, and pySerial to run. We will go through the installation of these three libraries. You will also need the Arduino IDE to upload code to your arduino.
+
+Download Arduino IDE here: https://www.arduino.cc/en/Main/Software
 Download Anaconda here: http://docs.continuum.io/anaconda/install/
 
 When asked to prepend the path to anaconda to your .bashrc file, respond yes.
@@ -24,6 +31,8 @@ Once you have downloaded the prerequisites you are ready to install the game.
 
 Do so by running
 '''git clone https://github.com/sd18fall/final-project-team_name'''
+
+Open Arduino IDE, and upload Sonar.ino to your Arduino. Check that everything works by opening the Serial monitor and ensuring that values are printed around 13000 with no hand over the sensor, and between 200 and 1000 with a hand over the sensor.
 
 Open your computer's terminal and navigate to the folder.
 
